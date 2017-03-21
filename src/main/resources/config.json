@@ -1,0 +1,18 @@
+{
+  "http.port":8001,
+  "webroot.dir":"/Users/well/code-oschina/vertxdemo/vertxdemo/webroot/templates/",
+  "action.package":"guda.mvcxdemo.action",
+  "biz.package":"guda.mvcxdemo.biz",
+  "dao.package":"guda.mvcxdemo.dao",
+  "db":{
+    "environment.id":"dev",
+    "driverClassName":"com.mysql.jdbc.Driver",
+    "host" : "localhost",
+    "port" : "3306",
+    "username" : "demo_user",
+    "password" : "demo_pwd",
+    "database" : "demo",
+    "charset" : "utf-8",
+    "autoCommit" : "false"
+  }
+}
