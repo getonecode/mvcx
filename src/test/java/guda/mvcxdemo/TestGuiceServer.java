@@ -5,8 +5,11 @@ import guda.mvcx.GuiceBeanFactory;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.VertxFactoryImpl;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.VertxFactory;
+
+import java.util.Map;
 
 /**
  * Created by well on 2017/3/21.
@@ -14,8 +17,15 @@ import io.vertx.core.spi.VertxFactory;
 public class TestGuiceServer {
 
     public static void main(String[] args){
-        JsonObject config=JsonConfigUtil.getConfig();
+        JsonObject config=JsonConfigUtil.getConfig().getJsonObject("dev");
+        JsonObject sys = config.getJsonObject("sys");
+        sys.forEach(entry->{
+            System.getProperties().put(entry.getKey(),entry.getValue());
+        });
+
         GuiceBeanFactory guiceBeanFactory =new GuiceBeanFactory(config);
+
+
 
         VertxFactory factory = new VertxFactoryImpl();
         final Vertx vertx = factory.vertx();

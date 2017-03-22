@@ -1,7 +1,9 @@
 package guda.mvcx;
 
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.name.Names;
 import guda.mvcx.annotation.action.Action;
 import guda.mvcx.annotation.action.Req;
@@ -30,30 +32,47 @@ public class GuiceBeanFactory {
 
     private JsonObject config;
     private Injector injector;
-    private List<RouteAction> actionList = new ArrayList<>();
+    private List<RouteAction> routeActionList = new ArrayList<>();
     private List<Class> actionClassList = new ArrayList<>();
 
 
     public GuiceBeanFactory(JsonObject jsonObject) {
         config = jsonObject;
         setupGuice();
-        actionList = resolveAction(actionClassList);
+        routeActionList = resolveAction(actionClassList);
     }
 
-
-    public DeploymentOptions readOpts() {
-        final DeploymentOptions options = new DeploymentOptions();
-        options.setHa(false);
-        options.setInstances(1);
-        options.setWorker(false);
-        options.setMultiThreaded(false);
-        return options;
-
-    }
 
     public void setupGuice() {
-        Properties myBatisProperties = new Properties();
         JsonObject dbConfig = config.getJsonObject("db");
+        String daoPackage = config.getString("dao.package");
+        List<Module> moduleList = new ArrayList<>();
+        if (dbConfig != null && daoPackage != null) {
+            Module mybatisModule = createMybatisModule(dbConfig, daoPackage);
+            if (mybatisModule != null) {
+                moduleList.add(mybatisModule);
+            }
+        }
+        String bizPackage = config.getString("biz.package");
+        Module bizModule = createBizModule(bizPackage);
+        if (bizModule != null) {
+            moduleList.add(bizModule);
+        }
+
+        String actionPackage = config.getString("action.package");
+        Module actionModule = createActionModule(actionPackage);
+        if (actionModule != null) {
+            moduleList.add(actionModule);
+        }
+
+        injector = Guice.createInjector(moduleList);
+    }
+
+    private Module createMybatisModule(JsonObject dbConfig, String daoPackage) {
+        if (dbConfig == null || daoPackage == null) {
+            return null;
+        }
+        Properties myBatisProperties = new Properties();
         myBatisProperties.setProperty("mybatis.environment.id", dbConfig.getString("environment.id"));
         myBatisProperties.setProperty("JDBC.driverClassName", dbConfig.getString("driverClassName"));
         myBatisProperties.setProperty("JDBC.host", dbConfig.getString("host"));
@@ -62,73 +81,82 @@ public class GuiceBeanFactory {
         myBatisProperties.setProperty("JDBC.username", dbConfig.getString("username"));
         myBatisProperties.setProperty("JDBC.password", dbConfig.getString("password"));
         myBatisProperties.setProperty("JDBC.autoCommit", dbConfig.getString("autoCommit"));
-
-        injector = Guice.createInjector(new MyBatisModule() {
-                                            @Override
-                                            protected void initialize() {
-                                                install(JdbcHelper.MySQL);
-                                                bindDataSourceProviderType(DruidDataSourceProvider.class);
-                                                bindTransactionFactoryType(JdbcTransactionFactory.class);
-                                                Names.bindProperties(binder(), myBatisProperties);
-                                                addMapperClasses();
-
-                                                String bizPackage = config.getString("biz.package");
-                                                if (bizPackage != null) {
-                                                    String[] ps = bizPackage.split(",");
-                                                    for (String s : ps) {
-                                                        try {
-                                                            Reflections reflections = new Reflections(s);
-                                                            Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Biz.class);
-                                                            classes.forEach(clazz -> {
-                                                                bind(clazz);
-                                                            });
-                                                        } catch (Throwable e) {
-                                                            throw new UnsupportedOperationException("can't add biz classes");
-                                                        }
-                                                    }
-
-                                                }
-                                                String actionPackage = config.getString("action.package");
-                                                if (actionPackage != null) {
-                                                    String[] ps = actionPackage.split(",");
-                                                    for (String s : ps) {
-                                                        try {
-                                                            Reflections reflections = new Reflections(s);
-                                                            Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Action.class);
-                                                            classes.forEach(clazz -> {
-                                                                actionClassList.add(clazz);
-                                                                bind(clazz);
-                                                            });
+        return new MyBatisModule() {
+            @Override
+            protected void initialize() {
+                install(JdbcHelper.MySQL);
+                bindDataSourceProviderType(DruidDataSourceProvider.class);
+                bindTransactionFactoryType(JdbcTransactionFactory.class);
+                Names.bindProperties(binder(), myBatisProperties);
+                addMapperClasses();
+            }
 
 
-                                                        } catch (Throwable e) {
-                                                            throw new UnsupportedOperationException("can't add action classes");
-                                                        }
-                                                    }
-                                                }
+            private void addMapperClasses() {
+
+                String[] ps = daoPackage.split(",");
+                for (String s : ps) {
+                    try {
+                        Reflections reflections = new Reflections(s);
+                        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(DAO.class);
+                        addMapperClasses(classes);
+                    } catch (Throwable e) {
+                        throw new UnsupportedOperationException("can't add dao classes");
+                    }
+                }
 
 
-                                            }
+            }
+        };
 
 
-                                            private void addMapperClasses() {
-                                                String daoPackage = config.getString("dao.package");
-                                                if (daoPackage != null) {
-                                                    String[] ps = daoPackage.split(",");
-                                                    for (String s : ps) {
-                                                        try {
-                                                            Reflections reflections = new Reflections(s);
-                                                            Set<Class<?>> classes = reflections.getTypesAnnotatedWith(DAO.class);
-                                                            addMapperClasses(classes);
-                                                        } catch (Throwable e) {
-                                                            throw new UnsupportedOperationException("can't add dao classes");
-                                                        }
-                                                    }
-                                                }
+    }
 
-                                            }
-                                        }
-        );
+    private Module createBizModule(String bizPackage) {
+        if (bizPackage == null) {
+            return null;
+        }
+        return new Module() {
+            @Override
+            public void configure(Binder binder) {
+                String[] ps = bizPackage.split(",");
+                for (String s : ps) {
+                    try {
+                        Reflections reflections = new Reflections(s);
+                        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Biz.class);
+                        classes.forEach(clazz -> {
+                            binder.bind(clazz);
+                        });
+                    } catch (Throwable e) {
+                        throw new UnsupportedOperationException("can't add biz classes");
+                    }
+                }
+            }
+        };
+    }
+
+    private Module createActionModule(String actionPackage) {
+        if (actionPackage == null) {
+            return null;
+        }
+        return new Module() {
+            @Override
+            public void configure(Binder binder) {
+                String[] ps = actionPackage.split(",");
+                for (String s : ps) {
+                    try {
+                        Reflections reflections = new Reflections(s);
+                        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Action.class);
+                        classes.forEach(clazz -> {
+                            binder.bind(clazz);
+                            actionClassList.add(clazz);
+                        });
+                    } catch (Throwable e) {
+                        throw new UnsupportedOperationException("can't add action classes");
+                    }
+                }
+            }
+        };
     }
 
 
@@ -197,8 +225,8 @@ public class GuiceBeanFactory {
         return injector;
     }
 
-    public List<RouteAction> getRouteList() {
-        return actionList;
+    public List<RouteAction> getRouteActionList() {
+        return routeActionList;
     }
 
     public void start() {

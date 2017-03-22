@@ -1,11 +1,13 @@
 package guda.mvcx;
 
 
+import guda.mvcx.ext.freemarker.ExtFreeMarkerEngineImpl;
 import guda.mvcx.handle.RouteAction;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.templ.FreeMarkerTemplateEngine;
 import io.vertx.ext.web.templ.HandlebarsTemplateEngine;
 import io.vertx.ext.web.templ.TemplateEngine;
 import org.slf4j.Logger;
@@ -30,15 +32,16 @@ public class AutoVerticle extends AbstractVerticle{
     public void start() throws Exception {
 
         Router router = Router.router(vertx);
-        StaticHandler staticHandler = StaticHandler.create().setWebRoot("assets");
+        StaticHandler staticHandler = StaticHandler.create();
+        staticHandler.setAllowRootFileSystemAccess(true);
+        staticHandler.setWebRoot(config().getString("assets.dir"));
         staticHandler.setCachingEnabled(false);
         router.route("/assets/*").handler(staticHandler);
 
-        TemplateEngine engine = HandlebarsTemplateEngine.create().setMaxCacheSize(0);
-        List<RouteAction> routeList = guiceBeanFactory.getRouteList();
+        TemplateEngine engine = new ExtFreeMarkerEngineImpl(config().getString("template.dir"));
+        List<RouteAction> routeList = guiceBeanFactory.getRouteActionList();
         routeList.forEach(routeAction->{
             routeAction.getActionInvokeHandler().setTemplateEngine(engine);
-            routeAction.getActionInvokeHandler().setTemplateDir(config().getString("webroot.dir"));
             String requestUri = routeAction.getRequestUri();
             if(requestUri.contains("\\*")){
                 if(routeAction.getHttpMethod()==null){

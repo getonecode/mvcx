@@ -22,9 +22,7 @@ public class UserAction {
 
 
     @Req(value = "/index.htm",method = HttpMethod.GET)
-    @View(type=ViewTypeEnum.json)
     public String index(RoutingContext context,@ReqParam("name") String name){
-
         System.out.println("context"+context);
         System.out.println("name"+ name);
         context.put("username", "gezhigang"+userService.index());

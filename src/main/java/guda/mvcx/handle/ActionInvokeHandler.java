@@ -1,5 +1,7 @@
 package guda.mvcx.handle;
 
+import guda.mvcx.Form;
+import guda.mvcx.PageQuery;
 import guda.mvcx.annotation.action.ReqParam;
 import guda.mvcx.annotation.action.View;
 import guda.mvcx.enums.ViewTypeEnum;
@@ -29,6 +31,9 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
     private String templateDir;
     private ViewTypeEnum viewType = ViewTypeEnum.template;
 
+    private static final String REDIRECT_PREFIX="redirect:";
+    private static final String NEXT_PREFIX="next:";
+
 
     public ActionInvokeHandler(Object action, Method method) {
         if (action == null || method == null) {
@@ -56,10 +61,20 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
         Object[] resolveParam = resolveParam(routingContext);
         try {
             Object invokeResult = targetMethod.invoke(targetAction, resolveParam);
-            if(viewType == ViewTypeEnum.template){
-                if(invokeResult == null){
-                    throw new RuntimeException(targetAction.getClass().getName()+" action must return template name");
+            if(invokeResult == null){
+                throw new RuntimeException(targetAction.getClass().getName()+" action must return object");
+            }
+            if(invokeResult.getClass() == String.class){
+                String result=String.valueOf(invokeResult);
+                if(result.startsWith(REDIRECT_PREFIX)){
+                    routingContext.reroute(result.substring(result.indexOf(REDIRECT_PREFIX)));
+                    return;
+                }else if(result.startsWith(NEXT_PREFIX)){
+                    routingContext.next();
+                    return;
                 }
+            }
+            if(viewType == ViewTypeEnum.template){
                 templateEngine.render(routingContext, normalTemplatePath(invokeResult.toString()), res -> {
                     if (res.succeeded()) {
                         routingContext.response().end(res.result());
@@ -69,9 +84,6 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
                 });
                 return;
             }else if(viewType == ViewTypeEnum.json){
-                if(invokeResult == null){
-                    throw new RuntimeException(targetAction.getClass().getName()+" action must return object");
-                }
                 HttpServerResponse response = routingContext.response();
                 response.putHeader("content-type", "application/json");
                 response.end(Json.encode(invokeResult));
@@ -124,9 +136,24 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
             try {
                 ReqParam declaredAnnotation = parameter.getDeclaredAnnotation(ReqParam.class);
                 if(declaredAnnotation!=null){
-                    valueArray[i++]=ReflectTool.resolveField(parameter, requestData,declaredAnnotation.value());
+                    Class clazz=parameter.getType();
+                    if (ReflectTool.isSimpleClass(clazz)) {
+                        valueArray[i++]= requestData.get(declaredAnnotation.value());
+                    }else{
+                        Object obj = ReflectTool.resolveCustomField(requestData, parameter.getType());
+                        putInnerData(routingContext,obj);
+                        valueArray[i++] =obj;
+                    }
+
                 }else{
-                    valueArray[i++]=ReflectTool.resolveField(parameter, requestData,null);
+                    Class clazz=parameter.getType();
+                    if (ReflectTool.isSimpleClass(clazz)) {
+                        valueArray[i++]= requestData.get(declaredAnnotation.value());
+                    }else{
+                        Object obj = ReflectTool.resolveCustomField(requestData, parameter.getType());
+                        putInnerData(routingContext,obj);
+                        valueArray[i++] =obj;
+                    }
                 }
 
             } catch (Exception e) {
@@ -136,6 +163,17 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
 
         }
         return valueArray;
+    }
+
+    private void putInnerData(RoutingContext routingContext,Object obj){
+        if(obj==null||routingContext==null){
+            return;
+        }
+        if(obj.getClass()== Form.class){
+            routingContext.put("_form",obj);
+        }else if(obj.getClass()== PageQuery.class){
+            routingContext.put("_query",obj);
+        }
     }
 
     private Map getRequestData(HttpServerRequest request) {
