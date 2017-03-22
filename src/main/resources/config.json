@@ -1,5 +1,6 @@
 {
   "dev": {
+    "env":"dev",
     "http.port": 8001,
     "template.dir": "/Users/well/code-oschina/mvcx/webroot/templates/",
     "assets.dir": "/Users/well/code-oschina/mvcx/assets/",
@@ -20,6 +21,16 @@
     "sys": {
       "app.logger.dir": "/Users/well/logs",
       "app.logger.level": "debug"
+    },
+    "cookie":{
+      "domain":"",
+      "path":"/",
+      "maxAge":3600,
+      "secure":false,
+      "httpOnly":true,
+      "sessionKey":"app_01",
+      "checkKey":"app_02",
+      "encryptSalt":"app"
     }
   }
 }

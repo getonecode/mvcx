@@ -1,6 +1,6 @@
 package guda.mvcxdemo.form;
 
-import guda.mvcx.Form;
+import guda.mvcx.helper.Form;
 
 import javax.validation.constraints.NotNull;
 

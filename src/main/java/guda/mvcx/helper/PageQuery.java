@@ -1,4 +1,4 @@
-package guda.mvcx;
+package guda.mvcx.helper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class PageQuery {
     private int totalCount;
 
 
-    private List<Integer> pages=new ArrayList<Integer>();
+    private List<Integer> pages = new ArrayList<Integer>();
 
     public int getPageSize() {
         return pageSize;
@@ -59,7 +59,6 @@ public class PageQuery {
         }
         return (totalCount + pageSize - 1) / pageSize;
     }
-
 
 
     public int getPageCount() {
@@ -146,40 +145,40 @@ public class PageQuery {
         countPages();
     }
 
-    private void countPages(){
+    private void countPages() {
         int page = getMaxPage();
-        if(page <= maxShowPage){
-            for(int i = 1;i<= page;++i){
+        if (page <= maxShowPage) {
+            for (int i = 1; i <= page; ++i) {
                 pages.add(i);
             }
-        }else{
+        } else {
             List<Integer> prefix = new ArrayList<Integer>();
             List<Integer> suffix = new ArrayList<Integer>();
-            if(pageNo<3){
-                for(int i=1;i<pageNo+1;++i){
+            if (pageNo < 3) {
+                for (int i = 1; i < pageNo + 1; ++i) {
                     prefix.add(i);
                 }
-            }else{
-                if(page - pageNo  ==0 ){
-                    for(int i = 4;i>-1 ;--i){
-                        if(pageNo-i>0){
+            } else {
+                if (page - pageNo == 0) {
+                    for (int i = 4; i > -1; --i) {
+                        if (pageNo - i > 0) {
                             prefix.add(pageNo - i);
                         }
                     }
-                }else if(page - pageNo  ==1){
-                    for(int i = 3;i>-1 ;--i){
-                        if(pageNo-i>0){
+                } else if (page - pageNo == 1) {
+                    for (int i = 3; i > -1; --i) {
+                        if (pageNo - i > 0) {
                             prefix.add(pageNo - i);
                         }
                     }
-                }else {
+                } else {
                     prefix.add(pageNo - 2);
                     prefix.add(pageNo - 1);
                     prefix.add(pageNo);
                 }
             }
             int size = maxShowPage - prefix.size();
-            for(int i=pageNo+1;(i<=page&&i<=pageNo+size);++i){
+            for (int i = pageNo + 1; (i <= page && i <= pageNo + size); ++i) {
                 suffix.add(i);
             }
             pages.addAll(prefix);

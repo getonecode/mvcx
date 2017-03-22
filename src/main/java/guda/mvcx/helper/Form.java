@@ -1,4 +1,4 @@
-package guda.mvcx;
+package guda.mvcx.helper;
 
 
 import javax.validation.ConstraintViolation;
@@ -15,9 +15,9 @@ import java.util.Set;
 public class Form {
 
     private boolean error;
-    private Map<String,String> errorResult = new HashMap<String,String>();
+    private Map<String, String> errorResult = new HashMap<String, String>();
 
-    public  void validate() {
+    public void validate() {
         ValidatorFactory valiatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = valiatorFactory.getValidator();
         Set<ConstraintViolation<Form>> set = validator.validate(this);

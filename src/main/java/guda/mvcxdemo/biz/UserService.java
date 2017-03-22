@@ -1,6 +1,7 @@
 package guda.mvcxdemo.biz;
 
 import com.google.inject.ImplementedBy;
+import com.google.inject.Singleton;
 import guda.mvcx.annotation.biz.Biz;
 import guda.mvcxdemo.biz.impl.UserServiceImpl;
 import guda.mvcxdemo.model.UserDO;

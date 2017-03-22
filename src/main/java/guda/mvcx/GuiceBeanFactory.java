@@ -1,9 +1,6 @@
 package guda.mvcx;
 
-import com.google.inject.Binder;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import com.google.inject.name.Names;
 import guda.mvcx.annotation.action.Action;
 import guda.mvcx.annotation.action.Req;
@@ -18,6 +15,8 @@ import org.mybatis.guice.MyBatisModule;
 import org.mybatis.guice.datasource.druid.DruidDataSourceProvider;
 import org.mybatis.guice.datasource.helper.JdbcHelper;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,6 +28,8 @@ import java.util.Set;
  * Created by well on 2017/3/20.
  */
 public class GuiceBeanFactory {
+
+    private Logger log= LoggerFactory.getLogger(getClass());
 
     private JsonObject config;
     private Injector injector;
@@ -65,7 +66,7 @@ public class GuiceBeanFactory {
             moduleList.add(actionModule);
         }
 
-        injector = Guice.createInjector(moduleList);
+        injector = Guice.createInjector(Stage.PRODUCTION,moduleList);
     }
 
     private Module createMybatisModule(JsonObject dbConfig, String daoPackage) {
@@ -99,6 +100,11 @@ public class GuiceBeanFactory {
                     try {
                         Reflections reflections = new Reflections(s);
                         Set<Class<?>> classes = reflections.getTypesAnnotatedWith(DAO.class);
+                        classes.forEach(clazz->{
+                            if(log.isInfoEnabled()){
+                                log.info("bind class:"+clazz.getName());
+                            }
+                        });
                         addMapperClasses(classes);
                     } catch (Throwable e) {
                         throw new UnsupportedOperationException("can't add dao classes");
@@ -125,6 +131,9 @@ public class GuiceBeanFactory {
                         Reflections reflections = new Reflections(s);
                         Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Biz.class);
                         classes.forEach(clazz -> {
+                            if(log.isInfoEnabled()){
+                                log.info("bind class:"+clazz.getName());
+                            }
                             binder.bind(clazz);
                         });
                     } catch (Throwable e) {
@@ -148,6 +157,9 @@ public class GuiceBeanFactory {
                         Reflections reflections = new Reflections(s);
                         Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Action.class);
                         classes.forEach(clazz -> {
+                            if(log.isInfoEnabled()){
+                                log.info("bind class:"+clazz.getName());
+                            }
                             binder.bind(clazz);
                             actionClassList.add(clazz);
                         });

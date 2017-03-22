@@ -1,7 +1,7 @@
 package guda.mvcx.handle;
 
-import guda.mvcx.Form;
-import guda.mvcx.PageQuery;
+import guda.mvcx.helper.Form;
+import guda.mvcx.helper.PageQuery;
 import guda.mvcx.annotation.action.ReqParam;
 import guda.mvcx.annotation.action.View;
 import guda.mvcx.enums.ViewTypeEnum;
@@ -14,6 +14,7 @@ import io.vertx.ext.web.templ.TemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
@@ -31,8 +32,8 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
     private String templateDir;
     private ViewTypeEnum viewType = ViewTypeEnum.template;
 
-    private static final String REDIRECT_PREFIX="redirect:";
-    private static final String NEXT_PREFIX="next:";
+    private static final String REDIRECT_PREFIX = "redirect:";
+    private static final String NEXT_PREFIX = "next:";
 
 
     public ActionInvokeHandler(Object action, Method method) {
@@ -61,20 +62,20 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
         Object[] resolveParam = resolveParam(routingContext);
         try {
             Object invokeResult = targetMethod.invoke(targetAction, resolveParam);
-            if(invokeResult == null){
-                throw new RuntimeException(targetAction.getClass().getName()+" action must return object");
+            if (invokeResult == null) {
+                throw new RuntimeException(targetAction.getClass().getName() + " action must return object");
             }
-            if(invokeResult.getClass() == String.class){
-                String result=String.valueOf(invokeResult);
-                if(result.startsWith(REDIRECT_PREFIX)){
+            if (invokeResult.getClass() == String.class) {
+                String result = String.valueOf(invokeResult);
+                if (result.startsWith(REDIRECT_PREFIX)) {
                     routingContext.reroute(result.substring(result.indexOf(REDIRECT_PREFIX)));
                     return;
-                }else if(result.startsWith(NEXT_PREFIX)){
+                } else if (result.startsWith(NEXT_PREFIX)) {
                     routingContext.next();
                     return;
                 }
             }
-            if(viewType == ViewTypeEnum.template){
+            if (viewType == ViewTypeEnum.template) {
                 templateEngine.render(routingContext, normalTemplatePath(invokeResult.toString()), res -> {
                     if (res.succeeded()) {
                         routingContext.response().end(res.result());
@@ -83,33 +84,33 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
                     }
                 });
                 return;
-            }else if(viewType == ViewTypeEnum.json){
+            } else if (viewType == ViewTypeEnum.json) {
                 HttpServerResponse response = routingContext.response();
                 response.putHeader("content-type", "application/json");
                 response.end(Json.encode(invokeResult));
                 return;
             }
         } catch (IllegalAccessException e) {
-            log.error("action exec error",e);
+            log.error("action exec error", e);
             routingContext.fail(e.getCause());
         } catch (Exception e) {
-            log.error("action exec error",e);
+            log.error("action exec error", e);
             routingContext.fail(e.getCause());
         }
 
     }
 
-    private String normalTemplatePath(String path){
-        if(templateDir== null){
+    private String normalTemplatePath(String path) {
+        if (templateDir == null) {
             return path;
         }
-        if(path==null){
+        if (path == null) {
             return null;
         }
-        if(templateDir.endsWith("/")){
-            return templateDir+path;
-        }else{
-            return templateDir+"/"+path;
+        if (templateDir.endsWith(File.pathSeparator)) {
+            return templateDir + path;
+        } else {
+            return templateDir + File.pathSeparator + path;
         }
     }
 
@@ -118,45 +119,46 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
             return null;
         }
         Object[] valueArray = new Object[parameters.length];
-        int i=0;
+        int i = 0;
         Map requestData = getRequestData(routingContext.request());
         for (Parameter parameter : parameters) {
             if (parameter.getType() == RoutingContext.class) {
-                valueArray[i++]=routingContext;
+                valueArray[i++] = routingContext;
                 continue;
             }
             if (parameter.getType() == HttpServerRequest.class) {
-                valueArray[i++]=routingContext.request();
+                valueArray[i++] = routingContext.request();
                 continue;
             }
             if (parameter.getType() == HttpServerResponse.class) {
-                valueArray[i++]=routingContext.response();
+                valueArray[i++] = routingContext.response();
                 continue;
             }
             try {
                 ReqParam declaredAnnotation = parameter.getDeclaredAnnotation(ReqParam.class);
-                if(declaredAnnotation!=null){
-                    Class clazz=parameter.getType();
+                if (declaredAnnotation != null) {
+                    Class clazz = parameter.getType();
                     if (ReflectTool.isSimpleClass(clazz)) {
-                        valueArray[i++]= requestData.get(declaredAnnotation.value());
-                    }else{
+                        valueArray[i++] = requestData.get(declaredAnnotation.value());
+                    } else {
                         Object obj = ReflectTool.resolveCustomField(requestData, parameter.getType());
-                        putInnerData(routingContext,obj);
-                        valueArray[i++] =obj;
+                        putInnerData(routingContext, obj);
+                        valueArray[i++] = obj;
                     }
 
-                }else{
-                    Class clazz=parameter.getType();
+                } else {
+                    Class clazz = parameter.getType();
                     if (ReflectTool.isSimpleClass(clazz)) {
-                        valueArray[i++]= requestData.get(declaredAnnotation.value());
-                    }else{
+                        valueArray[i++] = requestData.get(declaredAnnotation.value());
+                    } else {
                         Object obj = ReflectTool.resolveCustomField(requestData, parameter.getType());
-                        putInnerData(routingContext,obj);
-                        valueArray[i++] =obj;
+                        putInnerData(routingContext, obj);
+                        valueArray[i++] = obj;
                     }
                 }
 
             } catch (Exception e) {
+                log.error("register route error", e);
                 throw new RuntimeException(e);
             }
 
@@ -165,14 +167,14 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
         return valueArray;
     }
 
-    private void putInnerData(RoutingContext routingContext,Object obj){
-        if(obj==null||routingContext==null){
+    private void putInnerData(RoutingContext routingContext, Object obj) {
+        if (obj == null || routingContext == null) {
             return;
         }
-        if(obj.getClass()== Form.class){
-            routingContext.put("_form",obj);
-        }else if(obj.getClass()== PageQuery.class){
-            routingContext.put("_query",obj);
+        if (obj.getClass() == Form.class) {
+            routingContext.put("_form", obj);
+        } else if (obj.getClass() == PageQuery.class) {
+            routingContext.put("_query", obj);
         }
     }
 

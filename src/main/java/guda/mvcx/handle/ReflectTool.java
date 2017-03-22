@@ -17,14 +17,14 @@ import java.util.Set;
  */
 public class ReflectTool {
 
-    public static Object resolveField(Parameter parameter, Map<String, String> map,String paramName) throws InstantiationException, IllegalAccessException, ParseException {
-        Class clazz=parameter.getType();
+    public static Object resolveField(Parameter parameter, Map<String, String> map, String paramName) throws InstantiationException, IllegalAccessException, ParseException {
+        Class clazz = parameter.getType();
         if (isSimpleClass(clazz)) {
-            if(paramName==null){
+            if (paramName == null) {
                 return null;
             }
             String s = map.get(paramName);
-            if(s==null){
+            if (s == null) {
                 return null;
             }
             return resolveSimpleVal(clazz, s);
@@ -67,7 +67,7 @@ public class ReflectTool {
                 return true;
             }
         });
-        for(Field field:allFields){
+        for (Field field : allFields) {
             String fieldName = field.getName();
             String val = map.get(fieldName);
             try {

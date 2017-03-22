@@ -6,7 +6,9 @@ import io.vertx.core.http.HttpMethod;
  * Created by well on 2017/3/21.
  */
 public class RouteAction {
+
     private String requestUri;
+
     private HttpMethod httpMethod;
 
     private ActionInvokeHandler actionInvokeHandler;
