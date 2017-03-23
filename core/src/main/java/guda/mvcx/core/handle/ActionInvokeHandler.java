@@ -71,7 +71,7 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
             if (invokeResult.getClass() == String.class) {
                 String result = String.valueOf(invokeResult);
                 if (result.startsWith(REDIRECT_PREFIX)) {
-                    routingContext.reroute(result.substring(result.indexOf(REDIRECT_PREFIX)));
+                    routingContext.response().putHeader("location", result.substring((REDIRECT_PREFIX.length()))).setStatusCode(302).end();
                     return;
                 } else if (result.startsWith(NEXT_PREFIX)) {
                     routingContext.next();
@@ -174,9 +174,9 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
         if (obj == null || routingContext == null) {
             return;
         }
-        if (obj.getClass() == Form.class) {
+        if (Form.class.isAssignableFrom(obj.getClass())) {
             routingContext.put("_form", obj);
-        } else if (obj.getClass() == PageQuery.class) {
+        } else if ( PageQuery.class.isAssignableFrom(obj.getClass())) {
             routingContext.put("_query", obj);
         }
     }
@@ -186,6 +186,11 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
         Iterator<Map.Entry<String, String>> iterator = request.params().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, String> next = iterator.next();
+            map.put(next.getKey(), next.getValue());
+        }
+        Iterator<Map.Entry<String, String>> iterator1 = request.formAttributes().iterator();
+        while (iterator1.hasNext()) {
+            Map.Entry<String, String> next = iterator1.next();
             map.put(next.getKey(), next.getValue());
         }
         return map;

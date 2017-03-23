@@ -17,7 +17,7 @@ public class Form {
     private boolean error;
     private Map<String, String> errorResult = new HashMap<String, String>();
 
-    public void validate() {
+    public boolean validate() {
         ValidatorFactory valiatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = valiatorFactory.getValidator();
         Set<ConstraintViolation<Form>> set = validator.validate(this);
@@ -27,6 +27,11 @@ public class Form {
                 errorResult.put(val.getPropertyPath().toString(), val.getMessage());
             }
         }
+        return error;
+    }
+
+    public void reject(String fieldName,String errorMsg){
+        errorResult.put(fieldName,errorMsg);
     }
 
 

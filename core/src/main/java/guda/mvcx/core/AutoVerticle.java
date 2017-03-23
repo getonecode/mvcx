@@ -12,6 +12,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
@@ -62,6 +63,8 @@ public class AutoVerticle extends AbstractVerticle {
         if (config().getBoolean("usePageAuth") && config().getString("pageAuthFailUrl") != null) {
             router.route().handler(new PageAuthCheckHandler(config().getString("pageAuthFailUrl")));
         }
+        router.route().handler(BodyHandler.create());
+
         //page auth end
         TemplateEngine engine = new ExtFreeMarkerEngineImpl(config().getString("template.dir"));
         List<RouteAction> routeList = guiceBeanFactory.getRouteActionList();
