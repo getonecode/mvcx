@@ -11,14 +11,6 @@
     "dao.package": "guda.mvcx.demo.dao",
     "db": {
       "environment.id": "dev",
-      "driverClassName": "com.mysql.jdbc.Driver",
-      "host": "localhost",
-      "port": "3306",
-      "username": "demo_user",
-      "password": "demo_pwd",
-      "database": "demo",
-      "charset": "utf-8",
-      "autoCommit": "false"
     },
     "sys": {
       "app.logger.dir": "/Users/well/logs",

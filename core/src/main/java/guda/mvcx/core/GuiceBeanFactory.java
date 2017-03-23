@@ -1,18 +1,13 @@
 package guda.mvcx.core;
 
 import com.google.inject.*;
-import com.google.inject.name.Names;
 import guda.mvcx.core.annotation.action.Action;
 import guda.mvcx.core.annotation.action.Req;
 import guda.mvcx.core.annotation.biz.Biz;
-import guda.mvcx.core.annotation.dao.DAO;
 import guda.mvcx.core.handle.ActionInvokeHandler;
 import guda.mvcx.core.handle.RouteAction;
 import io.vertx.core.json.JsonObject;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.mybatis.guice.MyBatisModule;
-import org.mybatis.guice.datasource.druid.DruidDataSourceProvider;
-import org.mybatis.guice.datasource.helper.JdbcHelper;
+import org.mybatis.guice.XMLMyBatisModule;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -72,46 +66,12 @@ public class GuiceBeanFactory {
         if (dbConfig == null || daoPackage == null) {
             return null;
         }
-        Properties myBatisProperties = new Properties();
-        myBatisProperties.setProperty("mybatis.environment.id", dbConfig.getString("environment.id"));
-        myBatisProperties.setProperty("JDBC.driverClassName", dbConfig.getString("driverClassName"));
-        myBatisProperties.setProperty("JDBC.host", dbConfig.getString("host"));
-        myBatisProperties.setProperty("JDBC.port", dbConfig.getString("port"));
-        myBatisProperties.setProperty("JDBC.schema", dbConfig.getString("database"));
-        myBatisProperties.setProperty("JDBC.username", dbConfig.getString("username"));
-        myBatisProperties.setProperty("JDBC.password", dbConfig.getString("password"));
-        myBatisProperties.setProperty("JDBC.autoCommit", dbConfig.getString("autoCommit"));
-        return new MyBatisModule() {
+        return new XMLMyBatisModule() {
             @Override
             protected void initialize() {
-                install(JdbcHelper.MySQL);
-                bindDataSourceProviderType(DruidDataSourceProvider.class);
-                bindTransactionFactoryType(JdbcTransactionFactory.class);
-                Names.bindProperties(binder(), myBatisProperties);
-                addMapperClasses();
+                setEnvironmentId(dbConfig.getString("environment.id"));
             }
 
-
-            private void addMapperClasses() {
-
-                String[] ps = daoPackage.split(",");
-                for (String s : ps) {
-                    try {
-                        Reflections reflections = new Reflections(s);
-                        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(DAO.class,true);
-                        classes.forEach(clazz->{
-                            if(log.isInfoEnabled()){
-                                log.info("bind class:"+clazz.getName());
-                            }
-                        });
-                        addMapperClasses(classes);
-                    } catch (Throwable e) {
-                        throw new UnsupportedOperationException("can't add dao classes");
-                    }
-                }
-
-
-            }
         };
 
 
