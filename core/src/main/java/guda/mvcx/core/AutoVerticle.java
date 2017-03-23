@@ -1,8 +1,10 @@
 package guda.mvcx.core;
 
 
-
 import guda.mvcx.core.ext.freemarker.ExtFreeMarkerEngineImpl;
+import guda.mvcx.core.handle.DefaultFailureHandler;
+import guda.mvcx.core.handle.DefaultNotFoundHandler;
+import guda.mvcx.core.handle.PageAuthCheckHandler;
 import guda.mvcx.core.handle.RouteAction;
 import guda.mvcx.core.session.CookieStoreSessionImpl;
 import guda.mvcx.core.session.DefaultCookieHandlerImpl;
@@ -50,13 +52,17 @@ public class AutoVerticle extends AbstractVerticle {
                 cookieConfig.getBoolean("secure"), cookieConfig.getBoolean("httpOnly"), cookieConfig.getLong("maxAge"),
                 cookieConfig.getString("sessionKey"), cookieConfig.getString("checkKey"), cookieConfig.getString("encryptSalt")));
 
-
         StaticHandler staticHandler = StaticHandler.create();
         staticHandler.setAllowRootFileSystemAccess(true);
         staticHandler.setWebRoot(config().getString("assets.dir"));
         staticHandler.setCachingEnabled(false);
         router.route("/assets/*").handler(staticHandler);
 
+        //page auth
+        if (config().getBoolean("usePageAuth") && config().getString("pageAuthFailUrl") != null) {
+            router.route().handler(new PageAuthCheckHandler(config().getString("pageAuthFailUrl")));
+        }
+        //page auth end
         TemplateEngine engine = new ExtFreeMarkerEngineImpl(config().getString("template.dir"));
         List<RouteAction> routeList = guiceBeanFactory.getRouteActionList();
         routeList.forEach(routeAction -> {
@@ -94,6 +100,9 @@ public class AutoVerticle extends AbstractVerticle {
 
 
         });
+
+        router.route("/*").handler(new DefaultNotFoundHandler(engine, "404.ftl"));
+        router.route().failureHandler(new DefaultFailureHandler(engine,"error.ftl"));
 
 
         HttpServer server = vertx.createHttpServer();

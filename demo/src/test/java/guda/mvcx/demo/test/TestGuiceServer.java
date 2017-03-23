@@ -25,7 +25,7 @@ public class TestGuiceServer {
 
         GuiceBeanFactory guiceBeanFactory =new GuiceBeanFactory(config);
 
-
+//page auth
 
         VertxFactory factory = new VertxFactoryImpl();
         final Vertx vertx = factory.vertx();

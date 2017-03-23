@@ -1,9 +1,11 @@
 {
   "dev": {
     "env":"dev",
+    "usePageAuth":false,
+    "pageAuthFailUrl":"",
     "http.port": 8001,
-    "template.dir": "/Users/well/code-liangmu/mvcx/demo/app/webroot/templates/",
-    "assets.dir": "/Users/well/code-liangmu/mvcx/demo/app/assets/",
+    "template.dir": "/Users/well/code-oschina/mvcx/demo/app/webroot/templates/",
+    "assets.dir": "/Users/well/code-oschina/mvcx/demo/app/assets/",
     "action.package": "guda.mvcx.demo.action",
     "biz.package": "guda.mvcx.demo.biz",
     "dao.package": "guda.mvcx.demo.dao",

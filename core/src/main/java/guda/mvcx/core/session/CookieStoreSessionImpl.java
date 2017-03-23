@@ -34,7 +34,7 @@ public class CookieStoreSessionImpl implements Handler<RoutingContext> {
 
     private BlowFishUtil blowFishUtil;
 
-    public CookieStoreSessionImpl(String domain,String path,boolean secure,boolean httpOnly,long maxAge,String sessionKey,String checkKey,String encryptSalt){
+    public CookieStoreSessionImpl(String domain,String path,boolean secure,boolean httpOnly,long maxAge,String sessionKey,String checkKey,String salt){
         this.domain=domain;
         this.path=path;
         this.secure=secure;
@@ -42,7 +42,7 @@ public class CookieStoreSessionImpl implements Handler<RoutingContext> {
         this.maxAge=maxAge;
         this.sessionKey=sessionKey;
         this.checkKey=checkKey;
-        this.encryptSalt=encryptSalt;
+        this.encryptSalt=salt;
         blowFishUtil=new BlowFishUtil(encryptSalt);
 
     }
@@ -51,22 +51,6 @@ public class CookieStoreSessionImpl implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext context) {
-        Cookie sessionCookie = context.getCookie(sessionKey);
-        Cookie checkCookie = context.getCookie(checkKey);
-
-        if(checkCookie!=null&& sessionCookie!=null){
-            String value = sessionCookie.getValue();
-            value=  blowFishUtil.decrypt(value);
-            if(!CookieCheck.mdCheck(value).equals(checkCookie.getValue())){
-                log.warn("cookie check invalid,"+ (value));
-                context.next();
-                return ;
-            }
-            JsonObject jsonObject=new JsonObject(value);
-            context.session().data().putAll(jsonObject.getMap());
-        }
-
-
         context.addHeadersEndHandler(v -> {
             Map<String, Object> data = context.session().data();
             if(data!=null){
@@ -87,6 +71,22 @@ public class CookieStoreSessionImpl implements Handler<RoutingContext> {
 
 
         });
+
+        Cookie sessionCookie = context.getCookie(sessionKey);
+        Cookie checkCookie = context.getCookie(checkKey);
+        if(checkCookie!=null&& sessionCookie!=null){
+            String value = sessionCookie.getValue();
+            value=  blowFishUtil.decrypt(value);
+            if(!CookieCheck.mdCheck(value).equals(checkCookie.getValue())){
+                log.warn("cookie check invalid,"+ (value));
+                context.next();
+                return ;
+            }
+            JsonObject jsonObject=new JsonObject(value);
+            context.session().data().putAll(jsonObject.getMap());
+        }
+
+
         context.next();
     }
 

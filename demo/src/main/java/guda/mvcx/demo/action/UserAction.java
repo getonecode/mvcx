@@ -30,6 +30,10 @@ public class UserAction {
         Object userid = context.session().get("userid");
         System.out.println("index1 from session userid"+ userid);
          context.session().put("userid","123");
+        if(true){
+            throw new RuntimeException("custom");
+        }
+
         return "user.hbs";
     }
 

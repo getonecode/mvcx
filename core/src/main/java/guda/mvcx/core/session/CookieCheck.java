@@ -20,19 +20,7 @@ public class CookieCheck {
         }
         return new String(resultCharArray);
     }
-    public static String md5(String data) {
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-            data += KEY;
-            byte[] inputByteArray = data.getBytes();
-            messageDigest.update(inputByteArray);
-            byte[] resultByteArray = messageDigest.digest();
-            String md= byteArrayToHex(resultByteArray);
-            return md.substring(2,19);
-        } catch (NoSuchAlgorithmException e) {
-            return null;
-        }
-    }
+
 
     public static String mdCheck(String data) {
         try {
