@@ -1,0 +1,37 @@
+{
+  "dev": {
+    "env":"dev",
+    "http.port": 8001,
+    "template.dir": "/Users/well/code-liangmu/mvcx/demo/app/webroot/templates/",
+    "assets.dir": "/Users/well/code-liangmu/mvcx/demo/app/assets/",
+    "action.package": "guda.mvcx.demo.action",
+    "biz.package": "guda.mvcx.demo.biz",
+    "dao.package": "guda.mvcx.demo.dao",
+    "db": {
+      "environment.id": "dev",
+      "driverClassName": "com.mysql.jdbc.Driver",
+      "host": "localhost",
+      "port": "3306",
+      "username": "demo_user",
+      "password": "demo_pwd",
+      "database": "demo",
+      "charset": "utf-8",
+      "autoCommit": "false"
+    },
+    "sys": {
+      "app.logger.dir": "/Users/well/logs",
+      "app.logger.level": "debug"
+    },
+    "cookie":{
+      "domain":"",
+      "path":"/",
+      "maxAge":3600,
+      "secure":false,
+      "httpOnly":true,
+      "sessionKey":"app_01",
+      "checkKey":"app_02",
+      "encryptSalt":"app"
+    }
+  }
+}
+
