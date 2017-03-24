@@ -2,6 +2,7 @@ package guda.mvcx.core.handle;
 
 
 import com.google.common.base.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.reflections.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -87,6 +88,9 @@ public class ReflectTool {
 
     public static Object resolveSimpleVal(Class paramTypeClass, Object val) throws IllegalAccessException, InstantiationException, ParseException {
         if (val == null || paramTypeClass == null) {
+            return null;
+        }
+        if(StringUtils.isEmpty(String.valueOf(val))){
             return null;
         }
 

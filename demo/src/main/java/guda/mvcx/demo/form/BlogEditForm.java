@@ -12,6 +12,16 @@ public class BlogEditForm extends BlogForm{
     @NotNull(message = "不能为空")
     private Long blogId;
 
+    public void init(BlogDO blogDO){
+        if(blogDO==null){
+            return;
+        }
+        setBlogId(blogDO.getBlogId());
+        setBlogContent(blogDO.getBlogContent());
+        setBlogStatus(blogDO.getBlogStatus());
+        setBlogTitle(blogDO.getBlogTitle());
+    }
+
     public BlogDO toDO(){
         BlogDO blogDO=super.toDO();
         blogDO.setBlogId(blogId);

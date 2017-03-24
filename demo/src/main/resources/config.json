@@ -8,7 +8,10 @@
     "assets.dir": "/Users/well/code-oschina/mvcx/demo/app/assets/",
     "action.package": "guda.mvcx.demo.action",
     "biz.package": "guda.mvcx.demo.biz",
-    "dao.package": "guda.mvcx.demo.dao",
+    "server":{
+       "homeServer":"http://localhost:8001",
+       "staticServer":"http://localhost:8001/static"
+    },
     "db": {
       "environment.id": "dev"
     },

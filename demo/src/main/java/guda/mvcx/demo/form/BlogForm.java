@@ -13,8 +13,10 @@ public class BlogForm extends Form{
 
     @NotEmpty(message = "标题不能为空")
     private String blogTitle;
+
     @NotEmpty(message = "内容不能为空")
-    private Integer blogContent;
+    private String blogContent;
+
     @NotNull(message = "状态不能为空")
     private Integer blogStatus;
 
@@ -35,11 +37,11 @@ public class BlogForm extends Form{
         this.blogTitle = blogTitle;
     }
 
-    public Integer getBlogContent() {
+    public String getBlogContent() {
         return blogContent;
     }
 
-    public void setBlogContent(Integer blogContent) {
+    public void setBlogContent(String blogContent) {
         this.blogContent = blogContent;
     }
 

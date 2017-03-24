@@ -11,6 +11,7 @@ import guda.mvcx.core.helper.BizResult;
 import guda.mvcx.core.helper.JsonResult;
 import guda.mvcx.core.helper.PageQuery;
 import guda.mvcx.demo.biz.BlogBiz;
+import guda.mvcx.demo.dao.model.BlogDO;
 import guda.mvcx.demo.form.BlogEditForm;
 import guda.mvcx.demo.form.BlogForm;
 import io.vertx.core.http.HttpMethod;
@@ -55,7 +56,9 @@ public class BlogAction {
     }
 
     @Req(value = "/edit", method = HttpMethod.GET)
-    public String edit(@ReqParam("blogId") Long blogId) {
+    public String edit(@ReqParam("blogId") Long blogId,BlogEditForm blogEditForm) {
+        BizResult detail = blogBiz.detail(blogId);
+        blogEditForm.init((BlogDO)detail.data.get("blogDO"));
         return "blog/edit.ftl";
     }
 

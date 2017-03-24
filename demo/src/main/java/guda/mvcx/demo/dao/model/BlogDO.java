@@ -1,7 +1,5 @@
 package guda.mvcx.demo.dao.model;
 
-import org.apache.ibatis.type.Alias;
-
 import java.util.Date;
 
 /**
@@ -11,7 +9,7 @@ public class BlogDO {
 
     private Long blogId;
     private String blogTitle;
-    private Integer blogContent;
+    private String blogContent;
     private Integer blogStatus;
     private Date gmtCreate;
     private Date gmtUpdate;
@@ -32,11 +30,11 @@ public class BlogDO {
         this.blogTitle = blogTitle;
     }
 
-    public Integer getBlogContent() {
+    public String getBlogContent() {
         return blogContent;
     }
 
-    public void setBlogContent(Integer blogContent) {
+    public void setBlogContent(String blogContent) {
         this.blogContent = blogContent;
     }
 

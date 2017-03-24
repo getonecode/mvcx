@@ -25,13 +25,13 @@
         </tr>
         </thead>
         <tbody>
-        <#list context.blogList as blog>
+        <#list (context.blogList)! as blog>
           <tr>
               <td>${blog.blogTitle!}</td>
               <td>${blog.blogContent!}</td>
               <td>${blog.blogStatus!}</td>
-              <td>${blog.gmtCreate!}</td>
-              <td>${blog.gmtUpdate!}</td>
+              <td>${blog.gmtCreate?string("yyyy-MM-dd HH:mm:ss")}</td>
+              <td>${blog.gmtUpdate?string("yyyy-MM-dd HH:mm:ss")}</td>
               <td>
                   <a href="/blog/edit?blogId=${blog.blogId!}">编辑</a>
                   <a href="/blog/doDel?blogId=${blog.blogId!}">删除</a>

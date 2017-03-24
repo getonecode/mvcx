@@ -142,7 +142,7 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
                 if (declaredAnnotation != null) {
                     Class clazz = parameter.getType();
                     if (ReflectTool.isSimpleClass(clazz)) {
-                        valueArray[i++] = requestData.get(declaredAnnotation.value());
+                        valueArray[i++] = ReflectTool.resolveSimpleVal(parameter.getType(),requestData.get(declaredAnnotation.value()));
                     } else {
                         Object obj = ReflectTool.resolveCustomField(requestData, parameter.getType());
                         putInnerData(routingContext, obj);
@@ -152,7 +152,7 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
                 } else {
                     Class clazz = parameter.getType();
                     if (ReflectTool.isSimpleClass(clazz)) {
-                        valueArray[i++] = requestData.get(declaredAnnotation.value());
+                        valueArray[i++] = ReflectTool.resolveSimpleVal(parameter.getType(), requestData.get(declaredAnnotation.value()));
                     } else {
                         Object obj = ReflectTool.resolveCustomField(requestData, parameter.getType());
                         putInnerData(routingContext, obj);

@@ -66,7 +66,7 @@ public class AutoVerticle extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         //page auth end
-        TemplateEngine engine = new ExtFreeMarkerEngineImpl(config().getString("template.dir"));
+        TemplateEngine engine = new ExtFreeMarkerEngineImpl(config());
         List<RouteAction> routeList = guiceBeanFactory.getRouteActionList();
         routeList.forEach(routeAction -> {
             routeAction.getActionInvokeHandler().setTemplateEngine(engine);

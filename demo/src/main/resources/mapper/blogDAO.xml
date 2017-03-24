@@ -28,8 +28,8 @@
 
     <insert id="insert" parameterType="blogDO">
         INSERT INTO
-        user(blog_title,blog_content,blog_status,gmt_create,gmt_update)
-        VALUES (#blogTitle#,#blogContent#,#blogStatus#,now(), now())
+        b_blog(blog_title,blog_content,blog_status,gmt_create,gmt_update)
+        VALUES (#{blogTitle},#{blogContent},#{blogStatus},now(), now())
         <selectKey resultType="java.lang.Long" keyProperty="blogId">
             select LAST_INSERT_ID()
         </selectKey>
@@ -42,8 +42,7 @@
 
 
     <delete id="delById">
-        delete from b_user
-        where user_id=#userId#
+        delete from b_blog where blog_id=#{blogId}
     </delete>
 
     <select id="selectByIds" resultMap="blogResultMap">
@@ -66,7 +65,7 @@
     <update id="updateByIdSelective" parameterType="blogDO">
         update b_blog set gmt_update=now()
         <if test="blogTitle != null and blogTitle!= ''" >
-           ,blog_title={blogTitle}
+           ,blog_title=#{blogTitle}
         </if>
         <if test="blogContent != null and blogContent!= ''" >
             ,blog_content=#{blogContent}
