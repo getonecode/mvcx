@@ -6,9 +6,17 @@
 
 <mapper namespace="guda.mvcx.demo.dao.UserDAO">
 
-    <select id="getUser" resultType="guda.mvcx.demo.model.UserDO" parameterType="java.lang.String">
-        select username as userName,password as password from user where username=#{value}
+
+    <resultMap type="guda.mvcx.demo.dao.model.UserDO" id="userResultMap">
+        <result property="username" column="username"  />
+        <result property="password" column="password"  />
+    </resultMap>
+
+
+    <select id="getUser" resultMap="userResultMap" parameterType="java.lang.String">
+        select username,password  from user where username=#{value}
     </select>
+
 
 
 </mapper>

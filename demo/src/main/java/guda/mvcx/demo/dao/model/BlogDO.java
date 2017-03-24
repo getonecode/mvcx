@@ -7,7 +7,6 @@ import java.util.Date;
 /**
  * Created by well on 2017/3/24.
  */
-@Alias("blogDO")
 public class BlogDO {
 
     private Long blogId;

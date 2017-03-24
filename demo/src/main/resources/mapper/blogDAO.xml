@@ -7,7 +7,7 @@
 <mapper namespace="guda.mvcx.demo.dao.BlogDAO">
 
 
-    <resultMap type="blogResult" id="blogResultMap">
+    <resultMap type="guda.mvcx.demo.dao.model.BlogDO" id="blogResultMap">
         <result property="blogId" column="blog_id"  />
         <result property="blogTitle" column="blog_title"  />
         <result property="blogContent" column="blog_content"  />
@@ -16,10 +16,11 @@
         <result property="gmtUpdate" column="gmt_update"  />
     </resultMap>
 
-    <sql id="blog.columns">
+
+    <sql id="blog_columns">
         blog_id,blog_title,blog_content,blog_status,gmt_create,gmt_update
     </sql>
-    <sql id="blog.selectField">
+    <sql id="blog_selectField">
         select
          blog_id,blog_title,blog_content,blog_status,gmt_create,gmt_update
         from b_blog
@@ -34,8 +35,8 @@
         </selectKey>
     </insert>
 
-    <select id="selectById" resultType="blogDO" parameterType="java.lang.Long">
-        select  <include refid="blog.columns"/>
+    <select id="selectById" resultMap="blogResultMap" parameterType="java.lang.Long">
+        select  <include refid="blog_columns"/>
         from b_blog where blog_id=#{blogId}
     </select>
 
@@ -45,35 +46,35 @@
         where user_id=#userId#
     </delete>
 
-    <select id="selectByIds" resultMap="blogResult">
-        <include refid="blog.selectField"/>
+    <select id="selectByIds" resultMap="blogResultMap">
+        <include refid="blog_selectField"/>
         where blog_id in
         <foreach collection="idsList" item="classIds" open="(" separator="," close=")">
             #{classIds[]}
         </foreach>
     </select>
 
-    <select id="selectForPage" resultMap="blogResult">
-        <include refid="blog.selectField"/>
-        limit #startRow#,#pageSize#
+    <select id="selectForPage" resultMap="blogResultMap" >
+        <include refid="blog_selectField"/>
+        limit #{startRow},#{pageSize}
     </select>
 
-    <select id="countForPage" resultType="java.lang.Integer">
+    <select id="countForPage" resultType="java.lang.Integer"  >
         select count(*) from b_blog
     </select>
 
     <update id="updateByIdSelective" parameterType="blogDO">
         update b_blog set gmt_update=now()
         <if test="blogTitle != null and blogTitle!= ''" >
-           ,blog_title=#blogTitle#
+           ,blog_title={blogTitle}
         </if>
         <if test="blogContent != null and blogContent!= ''" >
-            ,blog_content=#blogContent#
+            ,blog_content=#{blogContent}
         </if>
         <if test="blogStatus != null and blogStatus!= ''" >
-            ,blog_status=#blogStatus#
+            ,blog_status=#{blogStatus}
         </if>
-        where blog_id=#blogId#
+        where blog_id=#{blogId}
     </update>
 
 

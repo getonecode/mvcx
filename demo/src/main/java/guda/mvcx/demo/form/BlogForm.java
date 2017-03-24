@@ -2,14 +2,20 @@ package guda.mvcx.demo.form;
 
 import guda.mvcx.core.helper.Form;
 import guda.mvcx.demo.dao.model.BlogDO;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by well on 2017/3/24.
  */
 public class BlogForm extends Form{
 
+    @NotEmpty(message = "标题不能为空")
     private String blogTitle;
+    @NotEmpty(message = "内容不能为空")
     private Integer blogContent;
+    @NotNull(message = "状态不能为空")
     private Integer blogStatus;
 
     public BlogDO toDO(){

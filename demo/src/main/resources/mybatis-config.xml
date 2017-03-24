@@ -14,6 +14,10 @@
         <setting name="defaultExecutorType" value="REUSE" />
     </settings>
 
+    <typeAliases>
+        <typeAlias type="guda.mvcx.demo.dao.model.BlogDO" alias="blogDO"></typeAlias>
+        <typeAlias type="guda.mvcx.demo.dao.model.UserDO" alias="userDO"></typeAlias>
+    </typeAliases>
 
 
     <environments default="dev">

@@ -6,7 +6,7 @@
 
 <configuration>
 
-    <properties resource="jdbc.properties" />
+    <!--<properties resource="jdbc.properties" />-->
 
     <settings>
         <setting name="cacheEnabled" value="false" />
@@ -14,16 +14,20 @@
         <setting name="defaultExecutorType" value="REUSE" />
     </settings>
 
+    <typeAliases>
+        <typeAlias type="guda.mvcx.demo.dao.model.BlogDO" alias="blogDO"></typeAlias>
+        <typeAlias type="guda.mvcx.demo.dao.model.UserDO" alias="userDO"></typeAlias>
+    </typeAliases>
 
 
     <environments default="dev">
         <environment id="dev">
             <transactionManager type="JDBC" />
             <dataSource type="guda.mvcx.core.ext.DruidDataSourceFactory">
-                <property name="driverClass" value="${dev.jdbc.driverClassName}" />
-                <property name="url" value="${dev.jdbc.url}" />
-                <property name="username" value="${dev.jdbc.username}" />
-                <property name="password" value="${dev.jdbc.password}" />
+                <property name="driverClass" value="com.mysql.jdbc.Driver" />
+                <property name="url" value="jdbc:mysql://127.0.0.1:3306/demo?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true" />
+                <property name="username" value="demo_user" />
+                <property name="password" value="demo_pwd" />
                 <property name="validationQuery" value="select now()" />
                 <property name="testWhileIdle" value="true" />
                 <property name="testOnBorrow" value="false" />
@@ -37,7 +41,8 @@
 
 
     <mappers>
-        <mapper resource="mapper/UserDao.xml" />
+        <mapper resource="mapper/userDAO.xml" />
+        <mapper resource="mapper/blogDAO.xml" />
     </mappers>
 
 </configuration>
