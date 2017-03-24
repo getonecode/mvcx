@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="guda.mvcx.demo.dao.UserDAO">
+
+
+    <resultMap type="userDO" id="userResultMap">
+        <result property="username" column="username"  />
+        <result property="password" column="password"  />
+    </resultMap>
+
+    <sql id="user.columns">
+        username,password
+    </sql>
+    <sql id="user.selectField">
+        select
+        username,password
+        from user
+    </sql>
+
+    <insert id="user.insert" parameterType="userDO">
+        INSERT INTO
+        user(username,password)
+        VALUES (#username#,#password#,now(), now())
+        <selectKey resultType="java.lang.Long" keyProperty="userId">
+            select LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <select id="getUser" resultType="userDO" parameterType="java.lang.String">
+        select username,password  from user where username=#{value}
+    </select>
+
+
+    <delete id="user.delUserById">
+        delete from b_user
+        where user_id=#userId#
+    </delete>
+
+    <select id="user.selectByIds" resultMap="UserResult">
+        <include refid="user.selectField"/>
+        where user_id in
+        <foreach collection="idsList" item="classIds" open="(" separator="," close=")">
+            #{classIds[]}
+        </foreach>
+    </select>
+
+    <select id="user.selectForPage" resultMap="UserResult">
+        <include refid="user.selectField"/>
+        limit #startRow#,#pageSize#
+    </select>
+
+    <select id="user.countForPage" resultType="java.lang.Integer">
+        select count(*) from user
+    </select>
+
+    <update id="user.updateByIdSelective" parameterType="userDO">
+        update b_user set gmt_modified=now()
+        <if test="username != null and username!= ''" >
+           ,username=#username#
+        </if>
+        where user_id=#userId#
+    </update>
+
+
+
+</mapper>

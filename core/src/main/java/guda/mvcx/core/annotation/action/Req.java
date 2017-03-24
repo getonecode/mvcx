@@ -16,7 +16,7 @@ public @interface Req {
 
     String value() default "";
 
-    HttpMethod method() ;
+    HttpMethod method() default HttpMethod.GET;
 
 
 }

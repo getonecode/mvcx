@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="guda.mvcx.demo.dao.BlogDAO">
+
+
+    <resultMap type="blogResult" id="blogResultMap">
+        <result property="blogId" column="blog_id"  />
+        <result property="blogTitle" column="blog_title"  />
+        <result property="blogContent" column="blog_content"  />
+        <result property="blogStatus" column="blog_status"  />
+        <result property="gmtCreate" column="gmt_create"  />
+        <result property="gmtUpdate" column="gmt_update"  />
+    </resultMap>
+
+    <sql id="blog.columns">
+        blog_id,blog_title,blog_content,blog_status,gmt_create,gmt_update
+    </sql>
+    <sql id="blog.selectField">
+        select
+         blog_id,blog_title,blog_content,blog_status,gmt_create,gmt_update
+        from b_blog
+    </sql>
+
+    <insert id="insert" parameterType="blogDO">
+        INSERT INTO
+        user(blog_title,blog_content,blog_status,gmt_create,gmt_update)
+        VALUES (#blogTitle#,#blogContent#,#blogStatus#,now(), now())
+        <selectKey resultType="java.lang.Long" keyProperty="blogId">
+            select LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <select id="selectById" resultType="blogDO" parameterType="java.lang.Long">
+        select  <include refid="blog.columns"/>
+        from b_blog where blog_id=#{blogId}
+    </select>
+
+
+    <delete id="delById">
+        delete from b_user
+        where user_id=#userId#
+    </delete>
+
+    <select id="selectByIds" resultMap="blogResult">
+        <include refid="blog.selectField"/>
+        where blog_id in
+        <foreach collection="idsList" item="classIds" open="(" separator="," close=")">
+            #{classIds[]}
+        </foreach>
+    </select>
+
+    <select id="selectForPage" resultMap="blogResult">
+        <include refid="blog.selectField"/>
+        limit #startRow#,#pageSize#
+    </select>
+
+    <select id="countForPage" resultType="java.lang.Integer">
+        select count(*) from b_blog
+    </select>
+
+    <update id="updateByIdSelective" parameterType="blogDO">
+        update b_blog set gmt_update=now()
+        <if test="blogTitle != null and blogTitle!= ''" >
+           ,blog_title=#blogTitle#
+        </if>
+        <if test="blogContent != null and blogContent!= ''" >
+            ,blog_content=#blogContent#
+        </if>
+        <if test="blogStatus != null and blogStatus!= ''" >
+            ,blog_status=#blogStatus#
+        </if>
+        where blog_id=#blogId#
+    </update>
+
+
+
+</mapper>

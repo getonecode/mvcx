@@ -39,10 +39,9 @@ public class GuiceBeanFactory {
 
     public void setupGuice() {
         JsonObject dbConfig = config.getJsonObject("db");
-        String daoPackage = config.getString("dao.package");
         List<Module> moduleList = new ArrayList<>();
-        if (dbConfig != null && daoPackage != null) {
-            Module mybatisModule = createMybatisModule(dbConfig, daoPackage);
+        if (dbConfig != null) {
+            Module mybatisModule = createMybatisModule(dbConfig);
             if (mybatisModule != null) {
                 moduleList.add(mybatisModule);
             }
@@ -62,8 +61,8 @@ public class GuiceBeanFactory {
         injector = Guice.createInjector(Stage.PRODUCTION,moduleList);
     }
 
-    private Module createMybatisModule(JsonObject dbConfig, String daoPackage) {
-        if (dbConfig == null || daoPackage == null) {
+    private Module createMybatisModule(JsonObject dbConfig) {
+        if (dbConfig == null ) {
             return null;
         }
         return new XMLMyBatisModule() {

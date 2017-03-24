@@ -6,10 +6,9 @@ import guda.mvcx.core.annotation.action.Action;
 import guda.mvcx.core.annotation.action.Req;
 import guda.mvcx.core.helper.PageQuery;
 import guda.mvcx.demo.biz.UserService;
-import guda.mvcx.demo.model.UserDO;
+
+import guda.mvcx.demo.dao.model.UserDO;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.templ.TemplateEngine;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**

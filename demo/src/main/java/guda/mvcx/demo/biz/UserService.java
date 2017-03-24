@@ -3,7 +3,7 @@ package guda.mvcx.demo.biz;
 import com.google.inject.ImplementedBy;
 import guda.mvcx.core.annotation.biz.Biz;
 import guda.mvcx.demo.biz.impl.UserServiceImpl;
-import guda.mvcx.demo.model.UserDO;
+import guda.mvcx.demo.dao.model.UserDO;
 
 
 /**
