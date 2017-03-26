@@ -6,6 +6,9 @@ import guda.mvcx.core.annotation.action.Req;
 import guda.mvcx.core.annotation.biz.Biz;
 import guda.mvcx.core.handle.ActionInvokeHandler;
 import guda.mvcx.core.handle.RouteAction;
+import guda.mvcx.core.handle.RouteRequest;
+import guda.mvcx.core.util.PatternUtil;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import org.mybatis.guice.XMLMyBatisModule;
 import org.reflections.Reflections;
@@ -13,21 +16,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by well on 2017/3/20.
  */
 public class GuiceBeanFactory {
 
-    private Logger log= LoggerFactory.getLogger(getClass());
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     private JsonObject config;
     private Injector injector;
     private List<RouteAction> routeActionList = new ArrayList<>();
     private List<Class> actionClassList = new ArrayList<>();
+    private Map<RouteRequest, RouteAction> fullMatchActionMap = new HashMap<>();
+    private List<RouteAction> patternRouteActionList = new ArrayList<>();
 
 
     public GuiceBeanFactory(JsonObject jsonObject) {
@@ -58,11 +62,11 @@ public class GuiceBeanFactory {
             moduleList.add(actionModule);
         }
 
-        injector = Guice.createInjector(Stage.PRODUCTION,moduleList);
+        injector = Guice.createInjector(Stage.PRODUCTION, moduleList);
     }
 
     private Module createMybatisModule(JsonObject dbConfig) {
-        if (dbConfig == null ) {
+        if (dbConfig == null) {
             return null;
         }
         return new XMLMyBatisModule() {
@@ -87,10 +91,10 @@ public class GuiceBeanFactory {
                 for (String s : ps) {
                     try {
                         Reflections reflections = new Reflections(s);
-                        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Biz.class,true);
+                        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Biz.class, true);
                         classes.forEach(clazz -> {
-                            if(log.isInfoEnabled()){
-                                log.info("bind class:"+clazz.getName());
+                            if (log.isInfoEnabled()) {
+                                log.info("bind class:" + clazz.getName());
                             }
                             binder.bind(clazz);
                         });
@@ -113,10 +117,10 @@ public class GuiceBeanFactory {
                 for (String s : ps) {
                     try {
                         Reflections reflections = new Reflections(s);
-                        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Action.class,true);
+                        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Action.class, true);
                         classes.forEach(clazz -> {
-                            if(log.isInfoEnabled()){
-                                log.info("bind class:"+clazz.getName());
+                            if (log.isInfoEnabled()) {
+                                log.info("bind class:" + clazz.getName());
                             }
                             binder.bind(clazz);
                             actionClassList.add(clazz);
@@ -149,6 +153,31 @@ public class GuiceBeanFactory {
                     routeAction.setActionInvokeHandler(actionInvokeHandler);
                     if (methodAnno.method() != null) {
                         routeAction.setHttpMethod(methodAnno.method());
+                    }
+
+                    if (PatternUtil.isPattern(path)) {
+                        routeAction.setPattern(Pattern.compile(path));
+                        patternRouteActionList.add(routeAction);
+                    } else {
+                        if (methodAnno == null) {
+                            RouteRequest routeRequest = new RouteRequest(path, HttpMethod.GET);
+                            fullMatchActionMap.put(routeRequest, routeAction);
+
+                            routeRequest = new RouteRequest(path, HttpMethod.POST);
+                            fullMatchActionMap.put(routeRequest, routeAction);
+
+                            routeRequest = new RouteRequest(path, HttpMethod.HEAD);
+                            fullMatchActionMap.put(routeRequest, routeAction);
+
+                            routeRequest = new RouteRequest(path, HttpMethod.DELETE);
+                            fullMatchActionMap.put(routeRequest, routeAction);
+
+                            routeRequest = new RouteRequest(path, HttpMethod.PUT);
+                            fullMatchActionMap.put(routeRequest, routeAction);
+                        } else {
+                            RouteRequest routeRequest = new RouteRequest(path, methodAnno.method());
+                            fullMatchActionMap.put(routeRequest, routeAction);
+                        }
                     }
 
                     routeActions.add(routeAction);
@@ -199,7 +228,13 @@ public class GuiceBeanFactory {
         return routeActionList;
     }
 
-    public void start() {
-
+    public Map<RouteRequest, RouteAction> getFullMatchActionMap() {
+        return fullMatchActionMap;
     }
+
+    public List<RouteAction> getPatternRouteActionList() {
+        return patternRouteActionList;
+    }
+
+
 }

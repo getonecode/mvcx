@@ -21,6 +21,7 @@ public class ServerStart {
             System.getProperties().put(entry.getKey(),entry.getValue());
         });
 
+
         GuiceBeanFactory guiceBeanFactory =new GuiceBeanFactory(config);
 
         VertxFactory factory = new VertxFactoryImpl();
@@ -43,10 +44,10 @@ public class ServerStart {
 
     public static DeploymentOptions readOpts(){
         final DeploymentOptions options = new DeploymentOptions();
-        options.setHa(false);
+        //options.setHa(false);
         options.setInstances(1);
-        options.setWorker(false);
-        options.setMultiThreaded(false);
+        //options.setWorker(false);
+        //options.setMultiThreaded(false);
         return options;
 
     }

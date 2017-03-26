@@ -19,7 +19,7 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${app.logger.dir}/app.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${boss.logger.dir}/app.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${app.logger.dir}/app.%d{yyyy-MM-dd}.log</FileNamePattern>
         </rollingPolicy>
         <encoding>UTF8</encoding>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">

@@ -35,8 +35,8 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
     private String templateDir;
     private ViewTypeEnum viewType = ViewTypeEnum.template;
 
-    private static final String REDIRECT_PREFIX = "redirect:";
-    private static final String NEXT_PREFIX = "next:";
+    public static final String REDIRECT_PREFIX = "redirect:";
+    public static final String NEXT_PREFIX = "next:";
 
 
     public ActionInvokeHandler(Object action, Method method) {

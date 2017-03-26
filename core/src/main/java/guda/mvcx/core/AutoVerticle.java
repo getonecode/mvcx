@@ -8,6 +8,7 @@ import guda.mvcx.core.handle.PageAuthCheckHandler;
 import guda.mvcx.core.handle.RouteAction;
 import guda.mvcx.core.session.CookieStoreSessionImpl;
 import guda.mvcx.core.session.DefaultCookieHandlerImpl;
+import guda.mvcx.core.util.PatternUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -38,6 +39,7 @@ public class AutoVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
+        //vertx.eventBus().
 
         Router router = Router.router(vertx);
 
@@ -71,7 +73,7 @@ public class AutoVerticle extends AbstractVerticle {
         routeList.forEach(routeAction -> {
             routeAction.getActionInvokeHandler().setTemplateEngine(engine);
             String requestUri = routeAction.getRequestUri();
-            if (requestUri.contains("\\*")) {
+            if (PatternUtil.isPattern(requestUri)) {
                 if (routeAction.getHttpMethod() == null) {
                     router.route().pathRegex(requestUri).handler(routeAction.getActionInvokeHandler());
                     if (log.isInfoEnabled()) {
@@ -105,11 +107,14 @@ public class AutoVerticle extends AbstractVerticle {
         });
 
         router.route("/*").handler(new DefaultNotFoundHandler(engine, "404.ftl"));
-        router.route().failureHandler(new DefaultFailureHandler(engine,"error.ftl"));
+        router.route().failureHandler(new DefaultFailureHandler(engine, "error.ftl"));
 
 
         HttpServer server = vertx.createHttpServer();
-        server.requestHandler(router::accept).listen(config().getInteger("http.port"), "0.0.0.0");
+        server.requestHandler(router::accept).listen(config().getInteger("http.port"));
     }
+
+
+
 
 }

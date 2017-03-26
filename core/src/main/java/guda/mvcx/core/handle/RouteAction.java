@@ -2,6 +2,8 @@ package guda.mvcx.core.handle;
 
 import io.vertx.core.http.HttpMethod;
 
+import java.util.regex.Pattern;
+
 /**
  * Created by well on 2017/3/21.
  */
@@ -10,6 +12,16 @@ public class RouteAction {
     private String requestUri;
 
     private HttpMethod httpMethod;
+
+    private Pattern pattern;
+
+    public Pattern getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(Pattern pattern) {
+        this.pattern = pattern;
+    }
 
     private ActionInvokeHandler actionInvokeHandler;
 
