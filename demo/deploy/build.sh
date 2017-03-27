@@ -26,14 +26,12 @@ case $MAVEN_ENV in
 esac
 
 CODE_HOME=/home/admin/code/bigshot
-TOMCAT_HOME=/home/admin/tomcat-bigshot
-PACKAGE_HOME=/home/admin/code/bigshot/bigshot-web
-INSTALL_COMMAND="mvn clean install -Dmaven.test.skip=true -P$MAVEN_ENV"
 PACKAGE_COMMAND="mvn clean package -Dmaven.test.skip=true -P$MAVEN_ENV"
-WAR_NAME=bigshot-web-1.0-SNAPSHOT.war
-APP_PNAME=tomcat-bigshot
+JAR_NAME=demo-1.0-SNAPSHOT.jar
+config=config.json
+APP_PNAME=demo-1.0
 APP_PORT=6109
-APP_CHECK_URL="http://wx.liangmu.ren/index.htm"
+APP_CHECK_URL="http://localhost6091/index.htm"
 
 echo "update code...."
 cd $CODE_HOME
@@ -69,16 +67,9 @@ else
 fi
 
 
-
-mv ${PACKAGE_HOME}/target/${WAR_NAME} ROOT.war
-rm -rf ${TOMCAT_HOME}/webapps/ROOT.war
-rm -rf ${TOMCAT_HOME}/webapps/ROOT
-
-cp ROOT.war ${TOMCAT_HOME}/webapps/
-
 echo "start server...."
 
-nohup sh ${TOMCAT_HOME}/bin/startup.sh &
+nohup java -jar ${JAR_NAME} -conf ${config} &
 
 STATUS=$?
 if [ "$STATUS" -eq "0" ]; then
