@@ -4,6 +4,7 @@
     "usePageAuth":false,
     "pageAuthFailUrl":"",
     "http.port": 8001,
+    "instance.biz.count":3,
     "template.dir": "/Users/well/code-oschina/mvcx/demo/app/templates/",
     "assets.dir": "/Users/well/code-oschina/mvcx/demo/app/assets/",
     "action.package": "guda.mvcx.demo.action",
