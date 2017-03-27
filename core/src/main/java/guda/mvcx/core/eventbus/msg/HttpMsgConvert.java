@@ -1,4 +1,4 @@
-package guda.mvcx.core.eventbus;
+package guda.mvcx.core.eventbus.msg;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
@@ -8,18 +8,18 @@ import java.io.*;
 /**
  * Created by well on 2017/3/25.
  */
-public class ContextMsgConvert implements MessageCodec<HttpEventContext, HttpEventContext> {
+public class HttpMsgConvert implements MessageCodec<HttpEventMsg, HttpEventMsg> {
 
     @Override
-    public void encodeToWire(Buffer buffer, HttpEventContext httpEventContext) {
+    public void encodeToWire(Buffer buffer, HttpEventMsg httpEventMsg) {
         long start=System.currentTimeMillis();
         System.out.println("convert:"+start);
-        System.out.println("convert:"+httpEventContext);
+        System.out.println("convert:"+ httpEventMsg);
         final ByteArrayOutputStream b = new ByteArrayOutputStream();
         ObjectOutputStream o;
         try {
             o = new ObjectOutputStream(b);
-            o.writeObject(httpEventContext);
+            o.writeObject(httpEventMsg);
             o.close();
             buffer.appendBytes(b.toByteArray());
             System.out.println("convert end:"+(System.currentTimeMillis()-start));
@@ -29,15 +29,15 @@ public class ContextMsgConvert implements MessageCodec<HttpEventContext, HttpEve
     }
 
     @Override
-    public HttpEventContext decodeFromWire(int pos, Buffer buffer) {
+    public HttpEventMsg decodeFromWire(int pos, Buffer buffer) {
         long start=System.currentTimeMillis();
         System.out.println("decode:"+start);
         final ByteArrayInputStream b = new ByteArrayInputStream(buffer.getBytes());
         ObjectInputStream o = null;
-        HttpEventContext msg = null;
+        HttpEventMsg msg = null;
         try {
             o = new ObjectInputStream(b);
-            msg = (HttpEventContext) o.readObject();
+            msg = (HttpEventMsg) o.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -46,7 +46,7 @@ public class ContextMsgConvert implements MessageCodec<HttpEventContext, HttpEve
     }
 
     @Override
-    public HttpEventContext transform(HttpEventContext context) {
+    public HttpEventMsg transform(HttpEventMsg context) {
         return context;
     }
 

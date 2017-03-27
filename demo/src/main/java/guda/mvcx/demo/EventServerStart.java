@@ -1,10 +1,9 @@
 package guda.mvcx.demo;
 
-import guda.mvcx.core.GuiceBeanFactory;
-import guda.mvcx.core.eventbus.HttpConsumerVerticle;
-import guda.mvcx.core.eventbus.HttpEventContext;
-import guda.mvcx.core.eventbus.ContextMsgConvert;
 import guda.mvcx.core.eventbus.EventBusVerticle;
+import guda.mvcx.core.eventbus.context.AppContext;
+import guda.mvcx.core.eventbus.msg.HttpEventMsg;
+import guda.mvcx.core.eventbus.msg.HttpMsgConvert;
 import guda.mvcx.core.util.JsonConfigUtil;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -25,7 +24,7 @@ public class EventServerStart {
         });
 
 
-        GuiceBeanFactory guiceBeanFactory =new GuiceBeanFactory(config);
+        AppContext appContext=AppContext.create(config);
 
         VertxFactory factory = new VertxFactoryImpl();
         final Vertx vertx = factory.vertx();
@@ -33,18 +32,18 @@ public class EventServerStart {
         final DeploymentOptions deploymentOptions = readOpts();
         deploymentOptions.setConfig(config);
 
-        EventBusVerticle eventBusVerticle=new EventBusVerticle(guiceBeanFactory);
+        EventBusVerticle eventBusVerticle=new EventBusVerticle(appContext);
         vertx.deployVerticle(eventBusVerticle,deploymentOptions,res -> {
             if (res.succeeded()) {
-                System.out.println("Deployment id is: " + res.result());
+                System.out.println("Deployment main eventbusVerticle id is: " + res.result());
             } else {
                 System.out.println("Deployment failed!");
                 res.cause().printStackTrace();
             }
         });
 
-        HttpConsumerVerticle httpConsumerVerticle =new HttpConsumerVerticle(guiceBeanFactory.getFullMatchActionMap(),guiceBeanFactory.getPatternRouteActionList());
-        vertx.deployVerticle(httpConsumerVerticle,deploymentOptions,res -> {
+
+        vertx.deployVerticle("guda.mvcx.core.eventbus.HttpConsumerVerticle",readConsumeOpts(),res -> {
             if (res.succeeded()) {
                 System.out.println("Deployment id is: " + res.result());
             } else {
@@ -53,17 +52,9 @@ public class EventServerStart {
             }
         });
 
-        HttpConsumerVerticle httpConsumerVerticle2 =new HttpConsumerVerticle(guiceBeanFactory.getFullMatchActionMap(),guiceBeanFactory.getPatternRouteActionList());
-        vertx.deployVerticle(httpConsumerVerticle2,deploymentOptions,res -> {
-            if (res.succeeded()) {
-                System.out.println("Deployment id is: " + res.result());
-            } else {
-                System.out.println("Deployment failed!");
-                res.cause().printStackTrace();
-            }
-        });
 
-        vertx.eventBus().registerDefaultCodec(HttpEventContext.class, new ContextMsgConvert());
+
+        vertx.eventBus().registerDefaultCodec(HttpEventMsg.class, new HttpMsgConvert());
 
     }
 
@@ -75,6 +66,16 @@ public class EventServerStart {
         options.setInstances(1);
         //options.setWorker(false);
         //options.setMultiThreaded(false);
+        return options;
+
+    }
+
+    public static DeploymentOptions readConsumeOpts(){
+        final DeploymentOptions options = new DeploymentOptions();
+        //options.setHa(false);
+        options.setInstances(5);
+        options.setWorker(true);
+        options.setMultiThreaded(true);
         return options;
 
     }

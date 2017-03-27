@@ -1,6 +1,7 @@
 package guda.mvcx.core.eventbus;
 
-import guda.mvcx.core.GuiceBeanFactory;
+import guda.mvcx.core.eventbus.context.AppContext;
+import guda.mvcx.core.factory.GuiceBeanFactory;
 import guda.mvcx.core.ext.freemarker.ExtFreeMarkerEngineImpl;
 import guda.mvcx.core.handle.DefaultFailureHandler;
 import guda.mvcx.core.handle.DefaultNotFoundHandler;
@@ -9,9 +10,11 @@ import guda.mvcx.core.handle.RouteAction;
 import guda.mvcx.core.session.CookieStoreSessionImpl;
 import guda.mvcx.core.session.DefaultCookieHandlerImpl;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
@@ -26,23 +29,26 @@ import java.util.List;
 /**
  * Created by well on 2017/3/25.
  */
-public class EventBusVerticle extends AbstractVerticle {
+public class EventBusVerticle extends AbstractEventBusVerticle {
+
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    private GuiceBeanFactory guiceBeanFactory;
+    private AppContext appContext;
 
-    public EventBusVerticle(GuiceBeanFactory beanFactory) {
-        guiceBeanFactory = beanFactory;
+    public EventBusVerticle(AppContext context) {
+        appContext = context;
     }
 
 
     @Override
     public void start() throws Exception {
-        //vertx.eventBus().
 
         Router router = Router.router(vertx);
-
+        router.route().handler(event -> {
+            event.put(APP_CONTEXT_KEY, appContext);
+            event.next();
+        });
         router.route().handler(new DefaultCookieHandlerImpl());
 
 
@@ -69,54 +75,13 @@ public class EventBusVerticle extends AbstractVerticle {
 
         //page auth end
         TemplateEngine engine = new ExtFreeMarkerEngineImpl(config());
-        List<RouteAction> routeList = guiceBeanFactory.getRouteActionList();
+        List<RouteAction> routeList = appContext.getAllRouteActionList();
         routeList.forEach(routeAction -> {
-                    routeAction.getActionInvokeHandler().setTemplateEngine(engine);
+            routeAction.getActionInvokeHandler().setTemplateEngine(engine);
         });
-//        List<RouteAction> routeList = guiceBeanFactory.getRouteActionList();
-//        routeList.forEach(routeAction -> {
-//            routeAction.getActionInvokeHandler().setTemplateEngine(engine);
-//            String requestUri = routeAction.getRequestUri();
-//            if (requestUri.contains("\\*")) {
-//                if (routeAction.getHttpMethod() == null) {
-//                    router.route().pathRegex(requestUri).handler(routeAction.getActionInvokeHandler());
-//                    if (log.isInfoEnabled()) {
-//                        log.info("register route:uri[" + requestUri + "]to action[" + routeAction.getActionInvokeHandler().getTargetAction().getClass() + "."
-//                                + routeAction.getActionInvokeHandler().getTargetMethod().getName() + "]");
-//                    }
-//                } else {
-//                    router.routeWithRegex(routeAction.getHttpMethod(), requestUri).handler(routeAction.getActionInvokeHandler());
-//                    if (log.isInfoEnabled()) {
-//                        log.info("register route:uri[" + requestUri + "]method[" + routeAction.getHttpMethod() + "]to action[" + routeAction.getActionInvokeHandler().getTargetAction().getClass() + "."
-//                                + routeAction.getActionInvokeHandler().getTargetMethod().getName() + "]");
-//                    }
-//                }
-//            } else {
-//                if (routeAction.getHttpMethod() == null) {
-//                    router.route(requestUri).handler(routeAction.getActionInvokeHandler());
-//                    if (log.isInfoEnabled()) {
-//                        log.info("register route:uri[" + requestUri + "]to action[" + routeAction.getActionInvokeHandler().getTargetAction().getClass() + "."
-//                                + routeAction.getActionInvokeHandler().getTargetMethod().getName() + "]");
-//                    }
-//                } else {
-//                    router.route(routeAction.getHttpMethod(), requestUri).handler(routeAction.getActionInvokeHandler());
-//                    if (log.isInfoEnabled()) {
-//                        log.info("register route:uri[" + requestUri + "]method[" + routeAction.getHttpMethod() + "]to action[" + routeAction.getActionInvokeHandler().getTargetAction().getClass() + "."
-//                                + routeAction.getActionInvokeHandler().getTargetMethod().getName() + "]");
-//                    }
-//                }
-//            }
-//
-//
-//        });
-//
-//        router.route("/*").handler(new DefaultNotFoundHandler(engine, "404.ftl"));
-//        router.route().failureHandler(new DefaultFailureHandler(engine,"error.ftl"));
-
-
         router.route().handler(new HttpProduceHandler());
         router.route("/*").handler(new DefaultNotFoundHandler(engine, "404.ftl"));
-        router.route().failureHandler(new DefaultFailureHandler(engine,"error.ftl"));
+        router.route().failureHandler(new DefaultFailureHandler(engine, "error.ftl"));
 
         HttpServer server = vertx.createHttpServer();
         server.requestHandler(router::accept).listen(config().getInteger("http.port"));

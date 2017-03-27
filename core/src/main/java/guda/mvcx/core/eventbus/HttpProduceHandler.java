@@ -1,5 +1,7 @@
 package guda.mvcx.core.eventbus;
 
+import guda.mvcx.core.eventbus.helper.EventAddressConstants;
+import guda.mvcx.core.eventbus.msg.HttpEventMsg;
 import guda.mvcx.core.handle.ActionInvokeHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
@@ -17,14 +19,14 @@ public class HttpProduceHandler implements Handler<RoutingContext> {
 
 
         HttpServerRequest request = event.request();
-        HttpEventContext httpEventContext =new HttpEventContext();
-        httpEventContext.setHttpServerRequest(request);
-        httpEventContext.setRoutingContext(event);
+        HttpEventMsg httpEventMsg =new HttpEventMsg();
+        httpEventMsg.setHttpServerRequest(request);
+        httpEventMsg.setRoutingContext(event);
 
-        event.vertx().eventBus().send("http.act", httpEventContext, replay -> {
+        event.vertx().eventBus().send(EventAddressConstants.ACTION_ADDRESS, httpEventMsg, replay -> {
             if (replay.succeeded()) {
-                HttpEventContext httpEventContext1 = (HttpEventContext)replay.result().body();
-                if(ActionInvokeHandler.NEXT_PREFIX.equals(String.valueOf(httpEventContext1.getResponse()))){
+                HttpEventMsg httpEventMsg1 = (HttpEventMsg)replay.result().body();
+                if(ActionInvokeHandler.NEXT_PREFIX.equals(String.valueOf(httpEventMsg1.getResponse()))){
                     event.next();
                 }else{
 

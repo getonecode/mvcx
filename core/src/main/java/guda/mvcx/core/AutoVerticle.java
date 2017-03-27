@@ -1,7 +1,9 @@
 package guda.mvcx.core;
 
 
+import guda.mvcx.core.eventbus.context.AppContext;
 import guda.mvcx.core.ext.freemarker.ExtFreeMarkerEngineImpl;
+import guda.mvcx.core.factory.GuiceBeanFactory;
 import guda.mvcx.core.handle.DefaultFailureHandler;
 import guda.mvcx.core.handle.DefaultNotFoundHandler;
 import guda.mvcx.core.handle.PageAuthCheckHandler;
@@ -30,12 +32,11 @@ import java.util.List;
 public class AutoVerticle extends AbstractVerticle {
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    private GuiceBeanFactory guiceBeanFactory;
+    private AppContext appContext;
 
-    public AutoVerticle(GuiceBeanFactory beanFactory) {
-        guiceBeanFactory = beanFactory;
+    public AutoVerticle(AppContext context) {
+        appContext=context;
     }
-
 
     @Override
     public void start() throws Exception {
@@ -69,7 +70,7 @@ public class AutoVerticle extends AbstractVerticle {
 
         //page auth end
         TemplateEngine engine = new ExtFreeMarkerEngineImpl(config());
-        List<RouteAction> routeList = guiceBeanFactory.getRouteActionList();
+        List<RouteAction> routeList = appContext.getAllRouteActionList();
         routeList.forEach(routeAction -> {
             routeAction.getActionInvokeHandler().setTemplateEngine(engine);
             String requestUri = routeAction.getRequestUri();

@@ -1,4 +1,4 @@
-package guda.mvcx.core.eventbus;
+package guda.mvcx.core.eventbus.msg;
 
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
@@ -6,7 +6,7 @@ import io.vertx.ext.web.RoutingContext;
 /**
  * Created by well on 2017/3/25.
  */
-public class HttpEventContext {
+public class HttpEventMsg {
 
     private HttpServerRequest httpServerRequest;
 

@@ -1,7 +1,9 @@
 package guda.mvcx.demo;
 
 import guda.mvcx.core.AutoVerticle;
-import guda.mvcx.core.GuiceBeanFactory;
+import guda.mvcx.core.eventbus.context.AppContext;
+import guda.mvcx.core.eventbus.context.AppContextImpl;
+import guda.mvcx.core.factory.GuiceBeanFactory;
 import guda.mvcx.core.util.JsonConfigUtil;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -22,7 +24,7 @@ public class ServerStart {
         });
 
 
-        GuiceBeanFactory guiceBeanFactory =new GuiceBeanFactory(config);
+        AppContext appContext=AppContext.create(config);
 
         VertxFactory factory = new VertxFactoryImpl();
         final Vertx vertx = factory.vertx();
@@ -30,7 +32,7 @@ public class ServerStart {
         final DeploymentOptions deploymentOptions = readOpts();
         deploymentOptions.setConfig(config);
 
-        AutoVerticle autoVerticle=new AutoVerticle(guiceBeanFactory);
+        AutoVerticle autoVerticle=new AutoVerticle(appContext);
         vertx.deployVerticle(autoVerticle,deploymentOptions,res -> {
             if (res.succeeded()) {
                 System.out.println("Deployment id is: " + res.result());
