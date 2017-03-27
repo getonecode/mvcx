@@ -1,7 +1,7 @@
 #mvcx
 在vertx,mybatis,guice,freemarker等框架技术上扩展的快速开发web应用的脚手架。
-
 #工程结构说明
+```
 core----核心工程
 demo----演示工程代码
     app
@@ -22,5 +22,6 @@ demo----演示工程代码
           mapper  ----- mybatis配置文件
              userDAO.xml
           config.json ---全局配置文件
+```
        
           
