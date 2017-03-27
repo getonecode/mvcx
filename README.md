@@ -32,6 +32,56 @@ demo----演示工程代码
         config.json ---全局配置文件
 ```
 
-#说明
-  
+#demo说明
+  一个简单的action样例如下，通过@Action（注解在类上），@Req(注解在方法上)注解，来标记请求的路由。action方法默认支持RoutingContext,
+PageQuery(分页)，Form(表单提交，如下面例子中的blogForm,继承自Form即可)
+
+```
+@Action
+@Req(value = "/blog")
+@Singleton
+public class BlogAction {
+
+    @Inject
+    private BlogBiz blogBiz;
+
+    @Req(value = "/index", method = HttpMethod.GET)
+    public String index(RoutingContext context, PageQuery pageQuery) {
+        pageQuery.setTotalCount(100);
+        BizResult list = blogBiz.list(pageQuery);
+        context.data().putAll(list.data);
+        return "blog/index.ftl";
+    }
+
+    @Req(value = "/create", method = HttpMethod.GET)
+    public String create() {
+        return "blog/create.ftl";
+    } 
+
+
+    @Req(value = "/doCreate", method = HttpMethod.POST)
+    public String doCreate(BlogForm blogForm) {
+        if (blogForm.validate()) {
+            return "blog/create.ftl";
+        }
+        BizResult bizResult = blogBiz.create(blogForm.toDO());
+        if (bizResult.success) {
+            return "redirect:/blog/index";
+        } else {
+            return "error.ftl";
+        }
+
+    }
+
+    @Req(value = "/edit", method = HttpMethod.GET)
+    public String edit(@ReqParam("blogId") Long blogId,BlogEditForm blogEditForm) {
+        BizResult detail = blogBiz.detail(blogId);
+        blogEditForm.init((BlogDO)detail.data.get("blogDO"));
+        return "blog/edit.ftl";
+    }
+
+}
+
+```
+   
           
