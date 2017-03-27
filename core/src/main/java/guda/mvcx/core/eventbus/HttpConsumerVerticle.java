@@ -41,15 +41,10 @@ public class HttpConsumerVerticle extends AbstractEventBusVerticle {
             RouteRequest routeRequest = new RouteRequest(path, method);
             ActionInvokeHandler action = findAction(appContext,routeRequest);
             if (action == null) {
-                httpEventMsg.setResponse(ActionInvokeHandler.NEXT_PREFIX);
-                message.reply(httpEventMsg);
+                httpEventMsg.getRoutingContext().next();
                 return;
             }
-
             action.handle(httpEventMsg.getRoutingContext());
-
-            httpEventMsg.setResponse("success");
-            message.reply(httpEventMsg);
         });
     }
 

@@ -17,24 +17,11 @@ public class HttpProduceHandler implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext event) {
 
-
         HttpServerRequest request = event.request();
         HttpEventMsg httpEventMsg =new HttpEventMsg();
         httpEventMsg.setHttpServerRequest(request);
         httpEventMsg.setRoutingContext(event);
-
-        event.vertx().eventBus().send(EventAddressConstants.ACTION_ADDRESS, httpEventMsg, replay -> {
-            if (replay.succeeded()) {
-                HttpEventMsg httpEventMsg1 = (HttpEventMsg)replay.result().body();
-                if(ActionInvokeHandler.NEXT_PREFIX.equals(String.valueOf(httpEventMsg1.getResponse()))){
-                    event.next();
-                }else{
-
-                }
-            } else {
-                event.next();
-            }
-        });
+        event.vertx().eventBus().send(EventAddressConstants.ACTION_ADDRESS, httpEventMsg);
 
     }
 }
