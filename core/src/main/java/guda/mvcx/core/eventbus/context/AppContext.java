@@ -13,6 +13,7 @@ import java.util.Map;
  */
 public interface AppContext {
 
+
     public AppBeanFactory getAppBeanFactory() ;
 
     public Map<RouteRequest, RouteAction> getFullMatchActionMap();
@@ -21,7 +22,6 @@ public interface AppContext {
 
     public List<RouteAction> getAllRouteActionList() ;
 
-    public JsonObject getConfig();
 
     public static AppContext create(JsonObject config){
         return new AppContextImpl(config);

@@ -31,7 +31,7 @@ public class AppContextImpl implements AppContext {
 
     private AppBeanFactory appBeanFactory;
 
-    private JsonObject contextConfig;
+    private  static JsonObject contextConfig;
 
     private List<RouteAction> allRouteActionList = new ArrayList<>();
 
@@ -77,8 +77,8 @@ public class AppContextImpl implements AppContext {
         return allRouteActionList;
     }
 
-    @Override
-    public JsonObject getConfig() {
+
+    public static JsonObject getConfig() {
         return contextConfig;
     }
 
