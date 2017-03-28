@@ -21,6 +21,8 @@ public interface AppContext {
 
     public List<RouteAction> getAllRouteActionList() ;
 
+    public JsonObject getConfig();
+
     public static AppContext create(JsonObject config){
         return new AppContextImpl(config);
     }

@@ -77,6 +77,11 @@ public class AppContextImpl implements AppContext {
         return allRouteActionList;
     }
 
+    @Override
+    public JsonObject getConfig() {
+        return contextConfig;
+    }
+
     public void setPatternRouteActionList(List<RouteAction> patternRouteActionList) {
         this.patternRouteActionList = patternRouteActionList;
     }
