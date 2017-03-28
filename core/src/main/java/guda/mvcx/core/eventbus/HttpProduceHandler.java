@@ -2,7 +2,6 @@ package guda.mvcx.core.eventbus;
 
 import guda.mvcx.core.eventbus.helper.EventAddressConstants;
 import guda.mvcx.core.eventbus.msg.HttpEventMsg;
-import guda.mvcx.core.handle.ActionInvokeHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
@@ -13,10 +12,8 @@ import io.vertx.ext.web.RoutingContext;
 public class HttpProduceHandler implements Handler<RoutingContext> {
 
 
-
     @Override
     public void handle(RoutingContext event) {
-
         HttpServerRequest request = event.request();
         HttpEventMsg httpEventMsg =new HttpEventMsg();
         httpEventMsg.setHttpServerRequest(request);

@@ -42,6 +42,7 @@ public class HttpConsumerVerticle extends AbstractEventBusVerticle {
             ActionInvokeHandler action = findAction(appContext,routeRequest);
             if (action == null) {
                 httpEventMsg.getRoutingContext().next();
+                log.warn("无法找到对应的路由:"+httpServerRequest.path());
                 return;
             }
             action.handle(httpEventMsg.getRoutingContext());

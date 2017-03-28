@@ -2,6 +2,8 @@ package guda.mvcx.core.eventbus.msg;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
@@ -10,11 +12,12 @@ import java.io.*;
  */
 public class HttpMsgConvert implements MessageCodec<HttpEventMsg, HttpEventMsg> {
 
+
+    private Logger log = LoggerFactory.getLogger(HttpMsgConvert.class);
+
     @Override
     public void encodeToWire(Buffer buffer, HttpEventMsg httpEventMsg) {
-        long start=System.currentTimeMillis();
-        System.out.println("convert:"+start);
-        System.out.println("convert:"+ httpEventMsg);
+        long start = System.currentTimeMillis();
         final ByteArrayOutputStream b = new ByteArrayOutputStream();
         ObjectOutputStream o;
         try {
@@ -22,16 +25,17 @@ public class HttpMsgConvert implements MessageCodec<HttpEventMsg, HttpEventMsg> 
             o.writeObject(httpEventMsg);
             o.close();
             buffer.appendBytes(b.toByteArray());
-            System.out.println("convert end:"+(System.currentTimeMillis()-start));
+            if (log.isInfoEnabled()) {
+                log.info("convert end:" + (System.currentTimeMillis() - start));
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("convert httpEventMsg error", e);
         }
     }
 
     @Override
     public HttpEventMsg decodeFromWire(int pos, Buffer buffer) {
-        long start=System.currentTimeMillis();
-        System.out.println("decode:"+start);
+        long start = System.currentTimeMillis();
         final ByteArrayInputStream b = new ByteArrayInputStream(buffer.getBytes());
         ObjectInputStream o = null;
         HttpEventMsg msg = null;
@@ -39,9 +43,11 @@ public class HttpMsgConvert implements MessageCodec<HttpEventMsg, HttpEventMsg> 
             o = new ObjectInputStream(b);
             msg = (HttpEventMsg) o.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            log.error("decode httpEventMsg error", e);
         }
-        System.out.println("decode end:"+(System.currentTimeMillis()-start));
+        if (log.isInfoEnabled()) {
+            log.info("decode end:" + (System.currentTimeMillis() - start));
+        }
         return msg;
     }
 
@@ -52,7 +58,7 @@ public class HttpMsgConvert implements MessageCodec<HttpEventMsg, HttpEventMsg> 
 
     @Override
     public String name() {
-        return "DataMessage";
+        return "httpEventMsg";
     }
 
     @Override

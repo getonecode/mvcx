@@ -1,9 +1,6 @@
 package guda.mvcx.core.eventbus;
 
 import guda.mvcx.core.eventbus.context.AppContext;
-import guda.mvcx.core.eventbus.helper.EventAddressConstants;
-import guda.mvcx.core.eventbus.msg.HttpEventMsg;
-import guda.mvcx.core.factory.GuiceBeanFactory;
 import guda.mvcx.core.ext.freemarker.ExtFreeMarkerEngineImpl;
 import guda.mvcx.core.handle.DefaultFailureHandler;
 import guda.mvcx.core.handle.DefaultNotFoundHandler;
@@ -11,13 +8,9 @@ import guda.mvcx.core.handle.PageAuthCheckHandler;
 import guda.mvcx.core.handle.RouteAction;
 import guda.mvcx.core.session.CookieStoreSessionImpl;
 import guda.mvcx.core.session.DefaultCookieHandlerImpl;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
@@ -74,21 +67,15 @@ public class EventBusVerticle extends AbstractEventBusVerticle {
         if (config().getBoolean("usePageAuth") && config().getString("pageAuthFailUrl") != null) {
             router.route().handler(new PageAuthCheckHandler(config().getString("pageAuthFailUrl")));
         }
+        //page auth end
         router.route().handler(BodyHandler.create());
 
-        //page auth end
         TemplateEngine engine = new ExtFreeMarkerEngineImpl(config());
         List<RouteAction> routeList = appContext.getAllRouteActionList();
         routeList.forEach(routeAction -> {
             routeAction.getActionInvokeHandler().setTemplateEngine(engine);
         });
-        router.route().handler(event -> {
-            HttpServerRequest request = event.request();
-            HttpEventMsg httpEventMsg =new HttpEventMsg();
-            httpEventMsg.setHttpServerRequest(request);
-            httpEventMsg.setRoutingContext(event);
-            event.vertx().eventBus().send(EventAddressConstants.ACTION_ADDRESS, httpEventMsg);
-        });
+        router.route().handler(new HttpProduceHandler());
         router.route("/*").handler(new DefaultNotFoundHandler(engine, "404.ftl"));
         router.route().failureHandler(new DefaultFailureHandler(engine, "error.ftl"));
 

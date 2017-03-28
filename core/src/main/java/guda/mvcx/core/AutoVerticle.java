@@ -3,7 +3,6 @@ package guda.mvcx.core;
 
 import guda.mvcx.core.eventbus.context.AppContext;
 import guda.mvcx.core.ext.freemarker.ExtFreeMarkerEngineImpl;
-import guda.mvcx.core.factory.GuiceBeanFactory;
 import guda.mvcx.core.handle.DefaultFailureHandler;
 import guda.mvcx.core.handle.DefaultNotFoundHandler;
 import guda.mvcx.core.handle.PageAuthCheckHandler;
@@ -30,22 +29,20 @@ import java.util.List;
  * Created by well on 2017/3/20.
  */
 public class AutoVerticle extends AbstractVerticle {
+
     private Logger log = LoggerFactory.getLogger(getClass());
 
     private AppContext appContext;
 
     public AutoVerticle(AppContext context) {
-        appContext=context;
+        appContext = context;
     }
 
     @Override
     public void start() throws Exception {
-        //vertx.eventBus().
-
         Router router = Router.router(vertx);
 
         router.route().handler(new DefaultCookieHandlerImpl());
-
 
         SessionStore store = LocalSessionStore.create(vertx);
         SessionHandler sessionHandler = SessionHandler.create(store);
@@ -66,9 +63,8 @@ public class AutoVerticle extends AbstractVerticle {
         if (config().getBoolean("usePageAuth") && config().getString("pageAuthFailUrl") != null) {
             router.route().handler(new PageAuthCheckHandler(config().getString("pageAuthFailUrl")));
         }
-        router.route().handler(BodyHandler.create());
-
         //page auth end
+        router.route().handler(BodyHandler.create());
         TemplateEngine engine = new ExtFreeMarkerEngineImpl(config());
         List<RouteAction> routeList = appContext.getAllRouteActionList();
         routeList.forEach(routeAction -> {
@@ -104,18 +100,14 @@ public class AutoVerticle extends AbstractVerticle {
                 }
             }
 
-
         });
 
         router.route("/*").handler(new DefaultNotFoundHandler(engine, "404.ftl"));
         router.route().failureHandler(new DefaultFailureHandler(engine, "error.ftl"));
 
-
         HttpServer server = vertx.createHttpServer();
         server.requestHandler(router::accept).listen(config().getInteger("http.port"));
     }
-
-
 
 
 }
