@@ -30,7 +30,7 @@
         </selectKey>
     </insert>
 
-    <select id="selectById" resultMap="${doNameLower}ResultMap" parameterClass="java.lang.Long">
+    <select id="selectById" resultMap="${doNameLower}ResultMap" parameterType="java.lang.Long">
         select  <include refid="${tableName}_columns"/>
         from ${tableNamePrefix}${tableName} where  <#list list as l><#if l_index == 0>${l.columnName}=${r'#{'}${l.propName}${r'}'}</#if></#list>
     </select>
@@ -41,7 +41,7 @@
     </delete>
 
     <select id="selectByIds" resultMap="${doNameLower}ResultMap">
-        <include refid="${tableName}.selectField"/>
+        <include refid="${tableName}_selectField"/>
         where  <#list list as l><#if l_index == 0>${l.columnName}</#if></#list> in
         <foreach collection="idsList" item="classIds" open="(" separator="," close=")">
         ${r'#{'}classIds[]${r'}'}
@@ -53,7 +53,7 @@
         limit ${r'#{'}startRow${r'}'},${r'#{'}pageSize${r'}'}
     </select>
 
-    <select id="countForPage" resultClass="java.lang.Integer"  >
+    <select id="countForPage" resultType="java.lang.Integer"  >
         select count(*) from ${tableNamePrefix}${tableName}
     </select>
 

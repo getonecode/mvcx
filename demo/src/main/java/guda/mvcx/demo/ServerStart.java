@@ -7,22 +7,33 @@ import guda.mvcx.core.factory.GuiceBeanFactory;
 import guda.mvcx.core.util.JsonConfigUtil;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.impl.Args;
 import io.vertx.core.impl.VertxFactoryImpl;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.VertxFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by well on 2017/3/24.
  */
 public class ServerStart {
 
-    public static void main(String[] args){
-        JsonObject config= JsonConfigUtil.getConfig(ServerStart.class).getJsonObject("dev");
+    public static void main(String[] sargs){
+
+        Args args = new Args(sargs);
+        String confArg = args.map.get("-conf");
+        if(confArg==null){
+            confArg="dev";
+        }
+
+        System.out.println("server start use conf:" + confArg);
+
+        JsonObject config= JsonConfigUtil.getConfig(ServerStart.class).getJsonObject(confArg);
         JsonObject sys = config.getJsonObject("sys");
         sys.forEach(entry->{
             System.getProperties().put(entry.getKey(),entry.getValue());
         });
-
 
         AppContext appContext=AppContext.create(config);
 

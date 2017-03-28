@@ -108,11 +108,11 @@ public class GenDAO {
         genContext.setDoNameLower(genContext.getDoName().substring(0, 1).toLowerCase() + genContext.getDoName().substring(1));
         String packageDir = parentPackageName.replaceAll("\\.", File.separator + File.separator);
         String doFile = genContext.getBaseDir() + File.separator + GenConstants.javaDir + File.separator + packageDir
-                + File.separator + "dao" + File.separator+ "model" + File.separator + genContext.getDoName() + "DO.java";
+                 + File.separator+ "model" + File.separator + genContext.getDoName() + "DO.java";
         String daoInfFile = genContext.getBaseDir() + File.separator + GenConstants.javaDir + File.separator + packageDir
-                + File.separator + "dao" + File.separator + genContext.getDoName() + "DAO.java";
+                 + File.separator + genContext.getDoName() + "DAO.java";
         String daoImplFile = genContext.getBaseDir() + File.separator + GenConstants.javaDir + File.separator + packageDir
-                + File.separator + "dao" + File.separator + "impl" + File.separator + genContext.getDoName() + "DAOImpl.java";
+                 + File.separator + "impl" + File.separator + genContext.getDoName() + "DAOImpl.java";
         String sqlmapFile = genContext.getBaseDir() + File.separator + GenConstants.resourceDir + File.separator + "mapper" + File.separator+genContext.getTableName()+".xml";
 
         genContext.setDoFile(doFile);
@@ -128,9 +128,9 @@ public class GenDAO {
         params.put("tableNamePrefix",tablePrefix);
 
         params.put(VP_MAIN_PACKAGE,parentPackageName);
-        params.put(VP_DO_PACKAGE, parentPackageName+".dao.model");
-        params.put(VP_DAO_INTF_PACKAGE, parentPackageName+".dao");
-        params.put(VP_DAO_IMPL_PACKAGE, parentPackageName+".dao.impl");
+        params.put(VP_DO_PACKAGE, parentPackageName+".model");
+        params.put(VP_DAO_INTF_PACKAGE, parentPackageName);
+        params.put(VP_DAO_IMPL_PACKAGE, parentPackageName+".impl");
         params.put(VP_CLASS_NAME, getClassName(genContext.getTableName()));
 
         List<Map<String, String>> colInfoList = getColInfoList(genContext.getTableNamePrefix()+genContext.getTableName());

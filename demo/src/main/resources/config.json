@@ -1,8 +1,8 @@
 {
   "dev": {
     "env":"dev",
-    "usePageAuth":false,
-    "pageAuthFailUrl":"",
+    "usePageAuth":true,
+    "pageAuthFailUrl":"/login",
     "http.port": 8001,
     "instance.biz.count":3,
     "template.dir": "/Users/well/code-oschina/mvcx/demo/app/templates/",
@@ -18,7 +18,7 @@
     },
     "sys": {
       "app.logger.dir": "/Users/well/logs",
-      "app.logger.level": "debug"
+      "app.logger.level": "info"
     },
     "cookie":{
       "domain":"",

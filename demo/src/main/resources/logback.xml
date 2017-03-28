@@ -72,8 +72,6 @@
     </logger>
 
 
-
-
     <logger name="guda.mvcx">
         <level value="${app.logger.level}" />
     </logger>

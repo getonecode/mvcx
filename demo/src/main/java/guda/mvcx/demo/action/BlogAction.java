@@ -30,9 +30,9 @@ public class BlogAction {
 
     @Req(value = "/index", method = HttpMethod.GET)
     public String index(RoutingContext context, PageQuery pageQuery) {
-        pageQuery.setTotalCount(100);
-        BizResult list = blogBiz.list(pageQuery);
-        context.data().putAll(list.data);
+//        pageQuery.setTotalCount(100);
+//        BizResult list = blogBiz.list(pageQuery);
+//        context.data().putAll(list.data);
         return "blog/index.ftl";
     }
 
