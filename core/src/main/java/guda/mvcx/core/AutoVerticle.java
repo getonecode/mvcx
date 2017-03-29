@@ -69,7 +69,7 @@ public class AutoVerticle extends AbstractVerticle {
         List<RouteAction> routeList = appContext.getAllRouteActionList();
         routeList.forEach(routeAction -> {
             routeAction.getActionInvokeHandler().setTemplateEngine(engine);
-            String requestUri = routeAction.getRequestUri();
+            String requestUri = routeAction.getOriginalPath();
             if (PatternUtil.isPattern(requestUri)) {
                 if (routeAction.getHttpMethod() == null) {
                     router.route().pathRegex(requestUri).handler(routeAction.getActionInvokeHandler());

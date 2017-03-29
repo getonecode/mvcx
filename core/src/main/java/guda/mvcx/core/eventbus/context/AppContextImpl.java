@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -25,6 +26,8 @@ import java.util.regex.Pattern;
 public class AppContextImpl implements AppContext {
 
     private Logger log= LoggerFactory.getLogger(AppContextImpl.class);
+
+    private static final Pattern RE_OPERATORS_NO_STAR = Pattern.compile("([\\(\\)\\$\\+\\.])");
 
     private Map<RouteRequest, RouteAction> fullMatchActionMap = new ConcurrentHashMap<>();
     private List<RouteAction> patternRouteActionList = new ArrayList<>();
@@ -100,12 +103,16 @@ public class AppContextImpl implements AppContext {
                     String path = normalPath(actionAnnotation, methodAnno);
                     ActionInvokeHandler actionInvokeHandler = new ActionInvokeHandler(instance, method);
                     RouteAction routeAction = new RouteAction();
-                    routeAction.setRequestUri(path);
+                    if(path.indexOf(":")>-1){
+                        routeAction=createWithPatternRegex(path);
+                    }else{
+                        routeAction.setRequestUri(path);
+                    }
                     routeAction.setActionInvokeHandler(actionInvokeHandler);
                     if (methodAnno.method() != null) {
                         routeAction.setHttpMethod(methodAnno.method());
                     }
-
+                    routeAction.setOriginalPath(path);
                     if (PatternUtil.isPattern(path)) {
                         routeAction.setPattern(Pattern.compile(path));
                         patternRouteActionList.add(routeAction);
@@ -150,7 +157,7 @@ public class AppContextImpl implements AppContext {
                             fullMatchActionMap.put(routeRequest, routeAction);
 
                             if(log.isInfoEnabled()){
-                                log.info("register route:uri[" + path +"]method:["+methodAnno.method()+ "]to action[" + routeAction.getActionInvokeHandler().getTargetAction().getClass() + "."
+                                log.info("register route:uri[" + path + "]method:[" + methodAnno.method() + "]to action[" + routeAction.getActionInvokeHandler().getTargetAction().getClass() + "."
                                         + routeAction.getActionInvokeHandler().getTargetMethod().getName() + "]");
                             }
                         }
@@ -194,5 +201,36 @@ public class AppContextImpl implements AppContext {
 
         }
         return actionPath;
+    }
+
+
+    private  RouteAction createWithPatternRegex(String path) {
+        RouteAction routeAction =new RouteAction();
+        path = RE_OPERATORS_NO_STAR.matcher(path).replaceAll("\\\\$1");
+        if(path.charAt(path.length() - 1) == 42) {
+            path = path.substring(0, path.length() - 1) + ".*";
+        }
+
+        Matcher m = Pattern.compile(":([A-Za-z][A-Za-z0-9_]*)").matcher(path);
+        StringBuffer sb = new StringBuffer();
+        List<String> pathParamName = new ArrayList();
+
+        for(int index = 0; m.find(); ++index) {
+            String param = "p" + index;
+            String group = m.group().substring(1);
+            if(pathParamName.contains(group)) {
+                throw new IllegalArgumentException("Cannot use identifier " + group + " more than once in pattern string");
+            }
+
+            m.appendReplacement(sb, "(?<" + param + ">[^/]+)");
+            pathParamName.add(group);
+        }
+
+        m.appendTail(sb);
+        path = sb.toString();
+        routeAction.setPattern(Pattern.compile(path));
+        routeAction.setRequestUri(path);
+        routeAction.setPathParamNameList(pathParamName);
+        return routeAction;
     }
 }

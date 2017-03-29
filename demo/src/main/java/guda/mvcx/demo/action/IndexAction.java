@@ -9,6 +9,7 @@ import guda.mvcx.demo.biz.UserService;
 
 import guda.mvcx.demo.dao.model.UserDO;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.RoutingContext;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
@@ -27,6 +28,16 @@ public class IndexAction {
         pageQuery.setTotalCount(100);
         UserDO index = userService.index();
         System.out.println(ReflectionToStringBuilder.toString(index));
+        return "index.ftl";
+    }
+
+    @Req(value = "/index/:id/:path", method = HttpMethod.GET)
+    public String index(RoutingContext context,PageQuery pageQuery) {
+        System.out.println(context.request().getParam("id"));
+        System.out.println(context.request().getParam("path"));
+//        pageQuery.setTotalCount(100);
+//        UserDO index = userService.index();
+//        System.out.println(ReflectionToStringBuilder.toString(index));
         return "index.ftl";
     }
 

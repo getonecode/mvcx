@@ -9,11 +9,15 @@ import guda.mvcx.core.handle.RouteRequest;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import static java.util.Collections.sort;
@@ -39,27 +43,73 @@ public class HttpConsumerVerticle extends AbstractEventBusVerticle {
             HttpMethod method = httpServerRequest.method();
             AppContext appContext=getAppContext(httpEventMsg.getRoutingContext());
             RouteRequest routeRequest = new RouteRequest(path, method);
-            ActionInvokeHandler action = findAction(appContext,routeRequest);
-            if (action == null) {
+            RouteAction routeAction = findAction(appContext,routeRequest);
+            if (routeAction == null) {
                 httpEventMsg.getRoutingContext().next();
                 log.warn("无法找到对应的路由:"+httpServerRequest.path());
                 return;
             }
-            action.handle(httpEventMsg.getRoutingContext());
+            //处理路径参数
+            if(routeAction.getPathParamNameList()!=null&&routeAction.getPathParamNameList().size()==0){
+                processPathParam(routeAction,httpEventMsg.getRoutingContext());
+            }
+            routeAction.getActionInvokeHandler().handle(httpEventMsg.getRoutingContext());
         });
     }
 
-    private ActionInvokeHandler findAction(AppContext appContext,RouteRequest routeRequest) {
+    private void processPathParam(RouteAction routeAction,RoutingContext context){
+
+        Matcher m = routeAction.getPattern().matcher(context.request().path());
+        if (m.matches()) {
+            if (m.groupCount() > 0) {
+                Map<String, String> params = new HashMap<>(m.groupCount());
+                if (routeAction.getPathParamNameList() != null) {
+                    for (int i = 0; i < routeAction.getPathParamNameList().size(); i++) {
+                        final String k = routeAction.getPathParamNameList().get(i);
+                        final String value = Utils.urlDecode(m.group("p" + i), false);
+                        if (!context.request().params().contains(k)) {
+                            params.put(k, value);
+                        } else {
+                            context.pathParams().put(k, value);
+                        }
+                    }
+                } else {
+                    // Straight regex - un-named params
+                    // decode the path as it could contain escaped chars.
+                    for (int i = 0; i < m.groupCount(); i++) {
+                        String group = m.group(i + 1);
+                        if(group != null) {
+                            final String k = "param" + i;
+                            final String value = Utils.urlDecode(group, false);
+                            if (!context.request().params().contains(k)) {
+                                params.put(k, value);
+                            } else {
+                                context.pathParams().put(k, value);
+                            }
+                        }
+                    }
+                }
+                context.request().params().addAll(params);
+                context.pathParams().putAll(params);
+            }
+        }
+
+    }
+
+    private RouteAction findAction(AppContext appContext,RouteRequest routeRequest) {
         RouteAction routeAction = appContext.getFullMatchActionMap().get(routeRequest);
         if (routeAction != null) {
-            return routeAction.getActionInvokeHandler();
+            return routeAction;
         }
         RouteAction mostMatch = findMostMatch(appContext,routeRequest);
         if (mostMatch == null) {
             return null;
         }
-        appContext.getFullMatchActionMap().put(routeRequest, mostMatch);
-        return mostMatch.getActionInvokeHandler();
+        //路径带参数的不应该放入缓存
+        if(mostMatch.getPathParamNameList()!=null&&mostMatch.getPathParamNameList().size()==0){
+            appContext.getFullMatchActionMap().put(routeRequest, mostMatch);
+        }
+        return mostMatch;
     }
 
 

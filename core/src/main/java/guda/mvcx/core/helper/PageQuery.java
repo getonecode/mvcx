@@ -14,7 +14,7 @@ public class PageQuery {
 
     private int startRow = 0;
 
-    private int pageNo = 1;
+    private int page = 1;
 
     private int totalCount;
 
@@ -29,7 +29,7 @@ public class PageQuery {
         if (pageSize <= 1) {
             pageSize = 10;
         }
-        startRow = (pageNo - 1) * pageSize;
+        startRow = (page - 1) * pageSize;
         this.pageSize = pageSize;
     }
 
@@ -37,16 +37,16 @@ public class PageQuery {
         return startRow;
     }
 
-    public int getPageNo() {
-        return pageNo;
+    public int getPage() {
+        return page;
     }
 
-    public void setPageNo(int pageNo) {
-        if (pageNo <= 1) {
-            pageNo = 1;
+    public void setPage(int page) {
+        if (page <= 1) {
+            page = 1;
         }
-        startRow = (pageNo - 1) * pageSize;
-        this.pageNo = pageNo;
+        startRow = (page - 1) * pageSize;
+        this.page = page;
     }
 
 
@@ -93,7 +93,7 @@ public class PageQuery {
 
     public boolean turnNext() {
         if (hasNextPage()) {
-            pageNo = getNextPage();
+            page = getNextPage();
             return true;
         }
         return false;
@@ -101,7 +101,7 @@ public class PageQuery {
 
     public boolean turnPrev() {
         if (hasPrevPage()) {
-            pageNo = getPrevPage();
+            page = getPrevPage();
             return true;
         }
         return false;
@@ -110,26 +110,26 @@ public class PageQuery {
     public boolean turn(int page) {
         int maxPage = getMaxPage();
         if (page > maxPage) {
-            pageNo = maxPage;
+            this.page = maxPage;
             return false;
         }
         if (page < 1) {
-            pageNo = 1;
+            this.page = 1;
             return false;
         }
-        pageNo = page;
+        this.page = page;
         return true;
     }
 
     public int getCurrentPage() {
         int maxPage = getMaxPage();
-        if (pageNo > maxPage) {
+        if (page > maxPage) {
             return maxPage;
         }
         if (maxPage < 1) {
             return 1;
         }
-        return pageNo;
+        return page;
     }
 
     public int getTotalCount() {
@@ -139,8 +139,8 @@ public class PageQuery {
     public void setTotalCount(int totalCount) {
         this.totalCount = totalCount;
         int page = (totalCount + pageSize - 1) / pageSize + 1;
-        if (pageNo > page) {
-            pageNo = page;
+        if (this.page > page) {
+            this.page = page;
         }
         countPages();
     }
@@ -154,31 +154,31 @@ public class PageQuery {
         } else {
             List<Integer> prefix = new ArrayList<Integer>();
             List<Integer> suffix = new ArrayList<Integer>();
-            if (pageNo < 3) {
-                for (int i = 1; i < pageNo + 1; ++i) {
+            if (this.page < 3) {
+                for (int i = 1; i < this.page + 1; ++i) {
                     prefix.add(i);
                 }
             } else {
-                if (page - pageNo == 0) {
+                if (page - this.page == 0) {
                     for (int i = 4; i > -1; --i) {
-                        if (pageNo - i > 0) {
-                            prefix.add(pageNo - i);
+                        if (this.page - i > 0) {
+                            prefix.add(this.page - i);
                         }
                     }
-                } else if (page - pageNo == 1) {
+                } else if (page - this.page == 1) {
                     for (int i = 3; i > -1; --i) {
-                        if (pageNo - i > 0) {
-                            prefix.add(pageNo - i);
+                        if (this.page - i > 0) {
+                            prefix.add(this.page - i);
                         }
                     }
                 } else {
-                    prefix.add(pageNo - 2);
-                    prefix.add(pageNo - 1);
-                    prefix.add(pageNo);
+                    prefix.add(this.page - 2);
+                    prefix.add(this.page - 1);
+                    prefix.add(this.page);
                 }
             }
             int size = maxShowPage - prefix.size();
-            for (int i = pageNo + 1; (i <= page && i <= pageNo + size); ++i) {
+            for (int i = this.page + 1; (i <= page && i <= this.page + size); ++i) {
                 suffix.add(i);
             }
             pages.addAll(prefix);
@@ -211,7 +211,7 @@ public class PageQuery {
         PageQuery baseQuery = (PageQuery) o;
 
         if (maxShowPage != baseQuery.maxShowPage) return false;
-        if (pageNo != baseQuery.pageNo) return false;
+        if (page != baseQuery.page) return false;
         if (pageSize != baseQuery.pageSize) return false;
         if (startRow != baseQuery.startRow) return false;
         if (totalCount != baseQuery.totalCount) return false;
@@ -225,7 +225,7 @@ public class PageQuery {
         int result = maxShowPage;
         result = 31 * result + pageSize;
         result = 31 * result + startRow;
-        result = 31 * result + pageNo;
+        result = 31 * result + page;
         result = 31 * result + totalCount;
         result = 31 * result + (pages != null ? pages.hashCode() : 0);
         return result;
