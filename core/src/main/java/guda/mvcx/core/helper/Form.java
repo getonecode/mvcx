@@ -17,7 +17,7 @@ public class Form {
     private boolean error;
     private Map<String, String> errorResult = new HashMap<String, String>();
 
-    public boolean validate() {
+    public boolean validateError() {
         ValidatorFactory valiatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = valiatorFactory.getValidator();
         Set<ConstraintViolation<Form>> set = validator.validate(this);

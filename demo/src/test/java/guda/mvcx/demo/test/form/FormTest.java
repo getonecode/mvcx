@@ -9,7 +9,7 @@ public class FormTest {
 
     public static void main(String[] args){
         UserForm userForm = new UserForm();
-        userForm.validate();
+        userForm.validateError();
         System.out.println(userForm.getErrorResult().get("userName"));
     }
 }

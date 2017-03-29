@@ -21,7 +21,7 @@ public class LoginAction {
 
     @Req(value = "/login", method = HttpMethod.POST)
     public String doLogin(RoutingContext context, LoginForm loginForm) {
-        if (loginForm.validate()) {
+        if (loginForm.validateError()) {
             return "login.ftl";
         }
         if ("test".equals(loginForm.getUserName()) && "test".equals(loginForm.getPassword())) {

@@ -43,7 +43,7 @@ public class BlogAction {
 
     @Req(value = "/doCreate", method = HttpMethod.POST)
     public String doCreate(BlogForm blogForm) {
-        if (blogForm.validate()) {
+        if (blogForm.validateError()) {
             return "blog/create.ftl";
         }
         BizResult bizResult = blogBiz.create(blogForm.toDO());
@@ -64,7 +64,7 @@ public class BlogAction {
 
     @Req(value = "/doUpdate", method = HttpMethod.POST)
     public String doUpdate(BlogEditForm blogEditForm) {
-        if (blogEditForm.validate()) {
+        if (blogEditForm.validateError()) {
             return "blog/edit.ftl";
         }
         BizResult bizResult = blogBiz.update(blogEditForm.toDO());
