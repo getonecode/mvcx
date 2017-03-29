@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.reflections.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -74,8 +75,17 @@ public class ReflectTool {
             try {
                 Object o = resolveSimpleVal(field.getType(), val);
                 if (o != null) {
-                    field.setAccessible(true);
-                    field.set(obj, o);
+
+                    String methodStr = "set"+fieldName.substring(0, 1).toUpperCase()+fieldName.substring(1);
+                    Method method = clazz.getMethod(methodStr,new Class[]{field.getType()});
+                    if(method==null){
+                        field.setAccessible(true);
+                        field.set(obj, o);
+                    }else{
+                        method.invoke(obj, o);
+                    }
+
+
                 }
 
             } catch (Exception e) {

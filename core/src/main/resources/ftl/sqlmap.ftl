@@ -43,8 +43,8 @@
     <select id="selectByIds" resultMap="${doNameLower}ResultMap">
         <include refid="${tableName}_selectField"/>
         where  <#list list as l><#if l_index == 0>${l.columnName}</#if></#list> in
-        <foreach collection="idsList" item="classIds" open="(" separator="," close=")">
-        ${r'#{'}classIds[]${r'}'}
+        <foreach collection="list" item="classIds" open="(" separator="," close=")">
+        ${r'#{'}classIds${r'}'}
         </foreach>
     </select>
 
