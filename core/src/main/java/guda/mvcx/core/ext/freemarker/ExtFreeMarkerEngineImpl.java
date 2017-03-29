@@ -1,9 +1,13 @@
 package guda.mvcx.core.ext.freemarker;
 
 import freemarker.cache.FileTemplateLoader;
+import freemarker.ext.beans.BeansWrapper;
+import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModelException;
+import guda.mvcx.core.util.JsonConfigUtil;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -28,7 +32,7 @@ public class ExtFreeMarkerEngineImpl implements TemplateEngine {
     private final FileTemplateLoader loader;
 
     public ExtFreeMarkerEngineImpl(JsonObject jsonConfig) {
-        String baseDir = jsonConfig.getString("template.dir");
+        String baseDir = jsonConfig.getString(JsonConfigUtil.templateDirKey);
         if (baseDir == null) {
             throw new RuntimeException("template dir cannot null");
         }
@@ -44,10 +48,10 @@ public class ExtFreeMarkerEngineImpl implements TemplateEngine {
         }
         config.setTemplateLoader(loader);
 
-        config.setSharedVariable("equal",new EqualTemplateMethodModelEx());
-        config.setSharedVariable("enum2map",new EnumToMapDirective());
+        config.setSharedVariable("equal", new EqualTemplateMethodModelEx());
+        config.setSharedVariable("enum2map", new EnumToMapDirective());
 
-        JsonObject server = jsonConfig.getJsonObject("server");
+        JsonObject server = jsonConfig.getJsonObject(JsonConfigUtil.serverKey);
         if (server != null) {
             server.forEach(host -> {
                 try {
@@ -59,9 +63,40 @@ public class ExtFreeMarkerEngineImpl implements TemplateEngine {
             });
 
         }
+        JsonObject tools = jsonConfig.getJsonObject(JsonConfigUtil.freemarkerToolKey);
+
+        if(tools!=null){
+            BeansWrapperBuilder builder = new BeansWrapperBuilder(Configuration.VERSION_2_3_21);
+            builder.setUseModelCache(true);
+            builder.setExposeFields(true);
+            BeansWrapper beansWrapper = builder.build();
+            tools.forEach(tool->{
+                TemplateHashModel templateHashModel = useStaticPackage(beansWrapper, String.valueOf(tool.getValue()));
+                if(templateHashModel!=null){
+                    config.setSharedVariable(tool.getKey(), templateHashModel);
+                }
+
+            });
+
+
+        }
+
+
 
 
     }
+
+    public static TemplateHashModel useStaticPackage(BeansWrapper beansWrapper, String packageName) {
+        try {
+            TemplateHashModel staticModels = beansWrapper.getStaticModels();
+            TemplateHashModel fileStatics = (TemplateHashModel) staticModels.get(packageName);
+            return fileStatics;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     @Override
     public void render(RoutingContext context, String templateFileName, Handler<AsyncResult<Buffer>> handler) {

@@ -16,6 +16,9 @@
     "db": {
       "environment.id": "dev"
     },
+    "freemarker.tool": {
+      "patternUtil": "guda.mvcx.core.util.PatternUtil"
+    },
     "sys": {
       "app.logger.dir": "/Users/well/logs",
       "app.logger.level": "info"

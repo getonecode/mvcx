@@ -10,6 +10,12 @@ import java.util.Scanner;
  */
 public class JsonConfigUtil {
 
+    public static final String freemarkerToolKey="freemarker.tool";
+
+    public static final String serverKey="server";
+
+    public static final String templateDirKey="template.dir";
+
     public static JsonObject getConfig() {
         return getConfig("config.json");
 
