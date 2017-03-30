@@ -10,4 +10,6 @@ public class SessionConstants {
     public static final String USER_NAME_KEY="_userName";
 
     public static final String ROLE_KEY="_role";
+
+
 }

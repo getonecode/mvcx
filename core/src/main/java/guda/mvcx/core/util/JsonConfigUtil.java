@@ -16,6 +16,14 @@ public class JsonConfigUtil {
 
     public static final String templateDirKey="template.dir";
 
+    public static final String cookieKey="cookie";
+    public static final String cookieExcludeKey="excludePath";
+
+    public static final String authKey="auth";
+    public static final String authExcludeKey="excludePath";
+    public static final String usePageAuthKey="usePageAuth";
+    public static final String pageAuthFailUrlKey="pageAuthFailUrl";
+
     public static JsonObject getConfig() {
         return getConfig("config.json");
 

@@ -1,8 +1,6 @@
 {
   "dev": {
     "env":"dev",
-    "usePageAuth":true,
-    "pageAuthFailUrl":"/login",
     "http.port": 8001,
     "instance.biz.count":3,
     "template.dir": "/Users/well/code-oschina/mvcx/demo/app/templates/",
@@ -31,7 +29,13 @@
       "httpOnly":true,
       "sessionKey":"app_01",
       "checkKey":"app_02",
-      "encryptSalt":"app"
+      "encryptSalt":"app",
+      "excludePath":["/static","/assets"]
+    },
+    "auth":{
+      "usePageAuth":true,
+      "pageAuthFailUrl":"/login",
+      "excludePath":["/static","/assets"]
     }
   }
 }
