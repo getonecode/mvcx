@@ -16,5 +16,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface View {
 
-    ViewTypeEnum type() default ViewTypeEnum.template;
+    ViewTypeEnum value() default ViewTypeEnum.template;
 }

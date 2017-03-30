@@ -77,7 +77,7 @@ public class BlogAction {
     }
 
     @Req(value = "/doDel", method = HttpMethod.POST)
-    @View(type = ViewTypeEnum.json)
+    @View(ViewTypeEnum.json)
     public JsonResult doDel(@ReqParam("blogId") Long blogId) {
         JsonResult jsonResult = JsonResult.getInstance();
         if (blogId == null) {

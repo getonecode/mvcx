@@ -48,7 +48,7 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
         parameters = method.getParameters();
         View declaredAnnotation = method.getDeclaredAnnotation(View.class);
         if (declaredAnnotation != null) {
-            viewType = declaredAnnotation.type();
+            viewType = declaredAnnotation.value();
         }
     }
 
@@ -92,6 +92,10 @@ public class ActionInvokeHandler implements Handler<RoutingContext> {
                 response.putHeader("content-type", "application/json");
                 response.end(Json.encode(invokeResult));
                 return;
+            }else if (viewType == ViewTypeEnum.text) {
+                routingContext.response().end(String.valueOf(invokeResult));
+            }else {
+                routingContext.response().end("unkown response type");
             }
         } catch (IllegalAccessException e) {
             log.error("action exec error", e);

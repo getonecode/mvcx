@@ -41,8 +41,9 @@ public class PageAuthCheckHandler implements Handler<RoutingContext> {
         }
         AuthUser authUser = (AuthUser) context.session().data().get(AuthUser.sessionKey);
         if (authUser == null) {
-            context.next();
-            return;
+            authUser=new AuthUser();
+            authUser.setLoginName("anonymous");
+            authUser.setRoles(new String[]{"anonymous"});
         }
 
         AuthUser.setCurrentUser(authUser);
