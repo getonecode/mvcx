@@ -6,6 +6,7 @@ import guda.mvcx.core.factory.GuiceBeanFactory;
 import guda.mvcx.core.handle.ActionInvokeHandler;
 import guda.mvcx.core.handle.RouteAction;
 import guda.mvcx.core.handle.RouteRequest;
+import guda.mvcx.core.util.JsonConfigUtil;
 import guda.mvcx.core.util.PatternUtil;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -83,6 +84,13 @@ public class AppContextImpl implements AppContext {
 
     public static JsonObject getConfig() {
         return contextConfig;
+    }
+
+    public static String v() {
+        if(contextConfig==null){
+            return null;
+        }
+        return contextConfig.getString(JsonConfigUtil.assetsVersionKey);
     }
 
     public void setPatternRouteActionList(List<RouteAction> patternRouteActionList) {

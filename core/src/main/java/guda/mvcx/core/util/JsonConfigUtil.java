@@ -27,6 +27,8 @@ public class JsonConfigUtil {
 
     public static final String extendsKey="_extends";
 
+    public static final String assetsVersionKey ="asserts.version";
+
     public static JsonObject getConfig() {
         return getConfig("config.json");
 
