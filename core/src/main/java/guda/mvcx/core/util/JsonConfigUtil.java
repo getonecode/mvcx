@@ -20,6 +20,7 @@ public class JsonConfigUtil {
     public static final String cookieExcludeKey="excludePath";
 
     public static final String authKey="auth";
+    public static final String envKey="env";
     public static final String authExcludeKey="excludePath";
     public static final String usePageAuthKey="usePageAuth";
     public static final String pageAuthFailUrlKey="pageAuthFailUrl";

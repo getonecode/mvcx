@@ -12,11 +12,13 @@ import guda.mvcx.core.session.DefaultCookieHandlerImpl;
 import guda.mvcx.core.util.JsonConfigUtil;
 import guda.mvcx.core.util.PatternUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
@@ -46,10 +48,15 @@ public class AutoVerticle extends AbstractVerticle {
     public void start() throws Exception {
         Router router = Router.router(vertx);
 
+        router.route().handler(CorsHandler.create("\\.(eot|ttf|woff|woff2)$").allowedMethod(HttpMethod.GET));
+
         StaticHandler staticHandler = StaticHandler.create();
         staticHandler.setAllowRootFileSystemAccess(true);
         staticHandler.setWebRoot(config().getString("assets.dir"));
-        staticHandler.setCachingEnabled(false);
+        if("env".equals(config().getString(JsonConfigUtil.envKey))||"test".equals(config().getString(JsonConfigUtil.envKey))){
+            staticHandler.setCachingEnabled(false);
+        }
+
         router.route("/assets/*").handler(staticHandler);
 
         router.route().handler(new DefaultCookieHandlerImpl());
@@ -69,7 +76,6 @@ public class AutoVerticle extends AbstractVerticle {
             router.route().handler(new PageAuthCheckHandler(authConfig.getString(JsonConfigUtil.pageAuthFailUrlKey),getAuthExcludePath(authConfig)));
         }
         //page auth end
-
 
         router.route().handler(BodyHandler.create());
         TemplateEngine engine = new ExtFreeMarkerEngineImpl(config());
