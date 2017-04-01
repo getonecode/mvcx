@@ -49,7 +49,7 @@ public class AutoVerticle extends AbstractVerticle {
     public void start() throws Exception {
         Router router = Router.router(vertx);
 
-        router.route("/assets/*").handler(CorsHandler.create("*").allowedMethod(HttpMethod.GET));
+        router.route("/assets/*").handler(CorsHandler.create("\\.(eot|ttf|woff|woff2|js|css).*$").allowedMethod(HttpMethod.GET));
 
         StaticHandler staticHandler = StaticHandler.create();
         staticHandler.setAllowRootFileSystemAccess(true);
