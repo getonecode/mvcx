@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by well on 2017/3/20.
@@ -48,7 +49,7 @@ public class AutoVerticle extends AbstractVerticle {
     public void start() throws Exception {
         Router router = Router.router(vertx);
 
-        router.route().handler(CorsHandler.create("\\.(eot|ttf|woff|woff2)$").allowedMethod(HttpMethod.GET));
+        router.route().handler(CorsHandler.create("\\.(eot|ttf|woff|woff2|js|css).*$").allowedMethod(HttpMethod.GET));
 
         StaticHandler staticHandler = StaticHandler.create();
         staticHandler.setAllowRootFileSystemAccess(true);
@@ -144,6 +145,12 @@ public class AutoVerticle extends AbstractVerticle {
         }
         return jsonArray.getList();
 
+    }
+
+    public static void main(String[] args){
+        String s="assets/css/font-awesome-4.7.0/fonts/fontawesome-webfont.woff?v=4.7.0";
+        Pattern pattern=Pattern.compile("\\.(eot|ttf|woff|woff2|js|css).*$");
+        System.out.println(pattern.matcher(s).find());
     }
 
 
