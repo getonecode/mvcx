@@ -25,6 +25,8 @@ public class JsonConfigUtil {
     public static final String usePageAuthKey="usePageAuth";
     public static final String pageAuthFailUrlKey="pageAuthFailUrl";
 
+    public static final String extendsKey="_extends";
+
     public static JsonObject getConfig() {
         return getConfig("config.json");
 
