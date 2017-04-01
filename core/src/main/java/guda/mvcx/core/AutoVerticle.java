@@ -17,10 +17,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CorsHandler;
-import io.vertx.ext.web.handler.SessionHandler;
-import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.*;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import io.vertx.ext.web.sstore.SessionStore;
 import io.vertx.ext.web.templ.TemplateEngine;
@@ -30,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -77,8 +75,11 @@ public class AutoVerticle extends AbstractVerticle {
             router.route().handler(new PageAuthCheckHandler(authConfig.getString(JsonConfigUtil.pageAuthFailUrlKey),getAuthExcludePath(authConfig)));
         }
         //page auth end
-
         router.route().handler(BodyHandler.create());
+
+        //必须在CookieStoreSessionImpl，BodyHandler后面执行
+        router.route().handler(CSRFHandler.create(UUID.randomUUID().toString()));
+
         TemplateEngine engine = new ExtFreeMarkerEngineImpl(config());
         List<RouteAction> routeList = appContext.getAllRouteActionList();
         routeList.forEach(routeAction -> {
