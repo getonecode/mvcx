@@ -15,6 +15,7 @@ public class JsonConfigUtil {
     public static final String serverKey="server";
 
     public static final String templateDirKey="template.dir";
+    public static final String assetsDirKey="assets.dir";
 
     public static final String cookieKey="cookie";
     public static final String cookieExcludeKey="excludePath";
