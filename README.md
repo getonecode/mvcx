@@ -1,4 +1,4 @@
-#mvcx
+# mvcx
 需要jdk8及以上版本，在vertx,mybatis,guice,freemarker等框架技术上扩展的快速开发web应用的脚手架。
 #框架特点
  1. 基于guice容器管理bean.通过config.json配置action.package，biz.package等包路径控制容器管理bean的范围
@@ -6,7 +6,7 @@
  3. 基于cookie的session共享机制，默认支持分布式部署,不需要单独的提供共享的session存储
  4. 集成了基于角色，用户的权限控制模块（页面访问，不涉及数据权限）
 
-#工程结构说明
+# 工程结构说明
 
 ```
 core----核心工程
@@ -33,7 +33,7 @@ demo----演示工程代码
         config.json ---全局配置文件
 ```
 
-#demo说明
+# demo说明
   一个简单的action样例如下，通过@Action（注解在类上），@Req(注解在方法上)注解，来标记请求的路由。action方法默认支持RoutingContext,
 PageQuery(分页)，Form(表单提交，如下面例子中的blogForm,继承自Form即可)
 
