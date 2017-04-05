@@ -39,48 +39,70 @@ PageQuery(分页)，Form(表单提交，如下面例子中的blogForm,继承自F
 
 ```
 @Action
-@Req(value = "/blog")
 @Singleton
+@Req("blog")
 public class BlogAction {
 
     @Inject
+    private UserBiz userBiz;
+    @Inject
     private BlogBiz blogBiz;
 
-    @Req(value = "/index", method = HttpMethod.GET)
-    public String index(RoutingContext context, PageQuery pageQuery) {
-        pageQuery.setTotalCount(100);
-        BizResult list = blogBiz.list(pageQuery);
-        context.data().putAll(list.data);
-        return "blog/index.ftl";
+    @Req(value = "list")
+    public String list(RoutingContext context,BlogQuery blogQuery){
+        blogQuery.setUserId(AuthUser.getCurrentUser().getUserId());
+        blogQuery.setPageSize(10);
+        BizResult bizResult = userBiz.queryBlogForAdmin(blogQuery);
+        context.data().putAll(bizResult.data);
+        return "blog/list.ftl";
     }
 
-    @Req(value = "/create", method = HttpMethod.GET)
-    public String create() {
-        return "blog/create.ftl";
-    } 
-
-
-    @Req(value = "/doCreate", method = HttpMethod.POST)
-    public String doCreate(BlogForm blogForm) {
-        if (blogForm.validate()) {
-            return "blog/create.ftl";
-        }
-        BizResult bizResult = blogBiz.create(blogForm.toDO());
-        if (bizResult.success) {
-            return "redirect:/blog/index";
-        } else {
+    @Req(value = "edit")
+    public String edit(BlogEditForm blogEditForm,@ReqParam("blogId")Long blogId){
+        if(blogId==null){
             return "error.ftl";
         }
-
-    }
-
-    @Req(value = "/edit", method = HttpMethod.GET)
-    public String edit(@ReqParam("blogId") Long blogId,BlogEditForm blogEditForm) {
-        BizResult detail = blogBiz.detail(blogId);
-        blogEditForm.init((BlogDO)detail.data.get("blogDO"));
+        BizResult detail = blogBiz.queryForEdit(blogId);
+        blogEditForm.initForm((BlogDO)detail.data.get("blogDO"));
         return "blog/edit.ftl";
     }
 
+    @Req(value = "create")
+    public String create(){
+        return "blog/create.ftl";
+    }
+
+    @Req(value = "create",method = HttpMethod.POST)
+    public String doCreate(BlogForm blogForm){
+        if(blogForm.validateError()){
+            return "blog/create.ftl";
+        }
+        BlogDO blogDO=blogForm.toDO();
+        blogDO.setUserId(AuthUser.getCurrentUser().getUserId());
+        blogDO.setBlogStatus(BlogStatusEnum.init.getVal());
+        blogDO.setCountView(0);
+        blogDO.setTagBest(0);
+        blogDO.setTagTop(0);
+        BizResult bizResult = blogBiz.create(blogDO);
+        if(bizResult.success){
+            return "blog/saveSuccess.ftl";
+        }
+        return "error.ftl";
+    }
+
+
+    @Req(value = "update",method = HttpMethod.POST)
+    public String update(BlogEditForm blogEditForm){
+        if(blogEditForm.validateError()){
+            return "blog/edit.ftl";
+        }
+        BlogDO blogDO=blogEditForm.toDO();
+        BizResult bizResult = blogBiz.update(blogDO);
+        if(bizResult.success){
+            return "blog/saveSuccess.ftl";
+        }
+        return "error.ftl";
+    }
 }
 
 ```
